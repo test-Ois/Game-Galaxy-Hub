@@ -13,7 +13,9 @@ import {
   RotateCcw,
   Zap,
   Timer,
+  Globe,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -42,55 +44,69 @@ export function GameControls() {
   const undo = useGameStore((s) => s.undo);
   const redo = useGameStore((s) => s.redo);
   const resetRound = useGameStore((s) => s.resetRound);
+  const router = useRouter();
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4">
+    <div className="w-full max-w-[95vw] sm:max-w-md mx-auto space-y-3 sm:space-y-4">
       {/* Mode Toggle */}
-      <div className="glass rounded-2xl p-3">
-        <div className="flex gap-2">
+      <div className="glass rounded-xl sm:rounded-2xl p-2 sm:p-3">
+        <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
           <Button
             variant="ghost"
             className={cn(
-              "flex-1 gap-2 rounded-xl h-11 transition-all",
+              "flex-col sm:flex-row gap-0.5 sm:gap-2 rounded-lg sm:rounded-xl h-12 sm:h-11 transition-all text-[9px] sm:text-xs font-bold px-1 sm:px-1.5",
               mode === "pvp"
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary hover:text-primary-foreground"
-                : "hover:bg-muted"
+                : "hover:bg-muted text-muted-foreground"
             )}
             onClick={() => setMode("pvp")}
           >
-            <Users className="h-4 w-4" />
-            Player vs Player
+            <Users className="h-4 w-4 shrink-0" />
+            <span>Local PvP</span>
           </Button>
           <Button
             variant="ghost"
             className={cn(
-              "flex-1 gap-2 rounded-xl h-11 transition-all",
+              "flex-col sm:flex-row gap-0.5 sm:gap-2 rounded-lg sm:rounded-xl h-12 sm:h-11 transition-all text-[9px] sm:text-xs font-bold px-1 sm:px-1.5",
               mode === "pvai"
                 ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary hover:text-primary-foreground"
-                : "hover:bg-muted"
+                : "hover:bg-muted text-muted-foreground"
             )}
             onClick={() => setMode("pvai")}
           >
-            <Bot className="h-4 w-4" />
-            Player vs AI
+            <Bot className="h-4 w-4 shrink-0" />
+            <span>Vs AI</span>
+          </Button>
+          <Button
+            variant="ghost"
+            className={cn(
+              "flex-col sm:flex-row gap-0.5 sm:gap-2 rounded-lg sm:rounded-xl h-12 sm:h-11 transition-all text-[9px] sm:text-xs font-bold px-1 sm:px-1.5 hover:bg-muted text-muted-foreground"
+            )}
+            onClick={() => router.push("/online")}
+          >
+            <Globe className="h-4 w-4 shrink-0" />
+            <span>Online</span>
           </Button>
         </div>
       </div>
 
       {/* Settings Row */}
-      <div className={`grid ${mode === "pvai" ? "grid-cols-3" : "grid-cols-2"} gap-2`}>
+      <div className={cn(
+        "grid gap-2 sm:gap-2.5",
+        mode === "pvai" ? "grid-cols-2" : "grid-cols-1"
+      )}>
         {/* AI Difficulty */}
         {mode === "pvai" && (
-          <div className="col-span-1">
-            <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5 block px-1">
-              <Zap className="h-3 w-3 inline mr-1" />
+          <div className="space-y-1.5">
+            <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium block px-1">
+              <Zap className="h-3 w-3 inline mr-1 text-primary" />
               Difficulty
             </label>
             <Select
               value={difficulty}
               onValueChange={(v) => setDifficulty(v as Difficulty)}
             >
-              <SelectTrigger className="glass rounded-xl h-10 text-sm">
+              <SelectTrigger className="glass rounded-xl h-11 sm:h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="glass-strong">
@@ -118,16 +134,16 @@ export function GameControls() {
         )}
 
         {/* Board Size */}
-        <div>
-          <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5 block px-1">
-            <Grid3X3 className="h-3 w-3 inline mr-1" />
-            Board
+        <div className="space-y-1.5">
+          <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium block px-1">
+            <Grid3X3 className="h-3 w-3 inline mr-1 text-primary" />
+            Board Size
           </label>
           <Select
             value={String(boardSize)}
             onValueChange={(v) => setBoardSize(Number(v) as BoardSize)}
           >
-            <SelectTrigger className="glass rounded-xl h-10 text-sm">
+            <SelectTrigger className="glass rounded-xl h-11 sm:h-10 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="glass-strong">
@@ -137,31 +153,38 @@ export function GameControls() {
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        {/* Series Mode */}
-        <div className="col-span-1">
-          <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5 block px-1">
-            <Timer className="h-3 w-3 inline mr-1" />
-            Series
-          </label>
-          <Select
-            value={String(seriesMode)}
-            onValueChange={(v) => setSeriesMode(Number(v) as SeriesMode)}
-          >
-            <SelectTrigger className="glass rounded-xl h-10 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="glass-strong">
-              <SelectItem value="1">Best of 1</SelectItem>
-              <SelectItem value="3">Best of 3</SelectItem>
-              <SelectItem value="5">Best of 5</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* Series Selection (Best-of 1, 3, 5 buttons) */}
+      <div className="space-y-2">
+        <label className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium flex items-center gap-1.5 px-1">
+          <Timer className="h-3.5 w-3.5 text-primary" />
+          Series Rule
+        </label>
+        <div className="flex flex-row sm:flex-row gap-1.5 sm:gap-2">
+          {([1, 3, 5] as SeriesMode[]).map((m) => {
+            const isSelected = seriesMode === m;
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setSeriesMode(m)}
+                className={cn(
+                  "flex-1 h-11 sm:h-10 rounded-lg sm:rounded-xl font-bold text-[10px] sm:text-xs border transition-all flex items-center justify-center gap-1 sm:gap-1.5",
+                  isSelected
+                    ? "bg-primary border-primary text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary hover:text-primary-foreground"
+                    : "bg-card/40 border-border/60 text-muted-foreground hover:bg-card/60 hover:text-foreground"
+                )}
+              >
+                <span>{m === 1 ? "Single Match" : `Best of ${m}`}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5 sm:gap-2">
         <Button
           variant="outline"
           size="sm"

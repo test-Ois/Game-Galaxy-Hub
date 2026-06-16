@@ -8,7 +8,7 @@ import { useCallback, useRef } from "react";
 import { useSettingsStore } from "@/stores/settingsStore";
 
 export function useSound() {
-  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const gameSoundEnabled = useSettingsStore((s) => s.gameSoundEnabled);
   const acRef = useRef<AudioContext | null>(null);
 
   const getContext = useCallback(() => {
@@ -30,7 +30,7 @@ export function useSound() {
       type: OscillatorType = "sine",
       volume: number = 0.03
     ) => {
-      if (!soundEnabled) return;
+      if (!gameSoundEnabled) return;
       const ac = getContext();
       if (!ac) return;
 
@@ -43,7 +43,7 @@ export function useSound() {
       oscillator.start();
       oscillator.stop(ac.currentTime + duration / 1000);
     },
-    [soundEnabled, getContext]
+    [gameSoundEnabled, getContext]
   );
 
   const playMove = useCallback(() => {
@@ -71,5 +71,45 @@ export function useSound() {
     beep(200, 150, "sawtooth", 0.03);
   }, [beep]);
 
-  return { playMove, playAIMove, playWin, playDraw, playClick, playError };
+  // Ludo Synthesized Sounds
+  const playDiceRoll = useCallback(() => {
+    // Noise-like rattle effect using a fast sequence of small chirps
+    beep(900, 20, "triangle", 0.015);
+    setTimeout(() => beep(750, 20, "triangle", 0.015), 30);
+    setTimeout(() => beep(600, 20, "triangle", 0.015), 60);
+    setTimeout(() => beep(800, 25, "triangle", 0.015), 90);
+  }, [beep]);
+
+  const playTokenMove = useCallback(() => {
+    // Pleasant ascending chirp
+    beep(523.25, 40, "sine", 0.025); // C5
+    setTimeout(() => beep(659.25, 60, "sine", 0.025), 45); // E5
+  }, [beep]);
+
+  const playCapture = useCallback(() => {
+    // Dramatic descending laser effect
+    beep(600, 80, "sawtooth", 0.03);
+    setTimeout(() => beep(300, 120, "sawtooth", 0.03), 85);
+  }, [beep]);
+
+  const playHomeReach = useCallback(() => {
+    // Beautiful fanfare chime
+    beep(523.25, 80, "sine", 0.03); // C5
+    setTimeout(() => beep(659.25, 80, "sine", 0.03), 90); // E5
+    setTimeout(() => beep(783.99, 80, "sine", 0.03), 180); // G5
+    setTimeout(() => beep(1046.5, 150, "sine", 0.03), 270); // C6
+  }, [beep]);
+
+  return { 
+    playMove, 
+    playAIMove, 
+    playWin, 
+    playDraw, 
+    playClick, 
+    playError,
+    playDiceRoll,
+    playTokenMove,
+    playCapture,
+    playHomeReach
+  };
 }

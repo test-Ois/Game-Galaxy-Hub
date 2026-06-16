@@ -115,7 +115,7 @@ export function GameOverModal() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.85, opacity: 0, y: 20 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="relative glass-strong rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+            className="relative glass-strong rounded-2xl sm:rounded-3xl p-5 sm:p-8 max-w-[92vw] sm:max-w-sm w-full text-center shadow-2xl"
           >
             {/* Icon */}
             <motion.div
@@ -176,11 +176,11 @@ export function GameOverModal() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="flex gap-3"
+              className="flex flex-col sm:flex-row gap-3"
             >
               <Button
                 onClick={handleNewGame}
-                className="flex-1 h-12 rounded-xl gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20"
+                className="w-full sm:flex-1 h-12 rounded-xl gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg shadow-primary/20"
               >
                 <RotateCcw className="h-4 w-4" />
                 {isSeriesComplete ? "New Series" : "Next Round"}

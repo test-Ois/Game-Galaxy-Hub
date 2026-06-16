@@ -1,32 +1,39 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { PWAInstallPrompt } from "@/components/layout/PWAInstallPrompt";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "TicTacToe Arena — AI-Powered Tic-Tac-Toe",
+  title: "Game Galaxy Hub — Play Multiple Games in One Place",
   description:
-    "A premium Tic-Tac-Toe experience featuring AI opponents with multiple difficulty levels, local multiplayer, series mode, and match history.",
+    "A premium multi-game platform featuring classic board games like Tic-Tac-Toe, Ludo Arena, and more. Play offline against smart AI or connect with players worldwide in real-time.",
   keywords: [
+    "game galaxy hub",
+    "board games",
     "tic tac toe",
+    "ludo",
     "multiplayer game",
     "AI game",
     "strategy game",
     "web game",
   ],
   authors: [{ name: "Qayoom Akhtar" }],
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-192x192.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Game Galaxy Hub",
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
-    title: "TicTacToe Arena",
-    description: "AI-Powered Tic-Tac-Toe Platform",
+    title: "Game Galaxy Hub",
+    description: "Premium Real-Time Multiplayer Board Game Galaxy Hub",
     type: "website",
   },
 };
@@ -38,7 +45,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className="font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -46,18 +53,33 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <div className="relative min-h-screen flex flex-col">
-              {/* Background decorations */}
+            <div className="relative min-h-screen flex flex-col overflow-x-hidden">
+              {/* Background decorations — responsive sizing */}
               <div className="fixed inset-0 grid-bg pointer-events-none" />
-              <div className="orb orb-primary fixed w-[500px] h-[500px] -top-48 -right-48 opacity-60" />
-              <div className="orb orb-accent fixed w-[400px] h-[400px] -bottom-32 -left-32 opacity-50" />
+              <div className="orb orb-primary fixed w-[clamp(200px,50vw,500px)] h-[clamp(200px,50vw,500px)] -top-24 sm:-top-48 -right-24 sm:-right-48 opacity-60" />
+              <div className="orb orb-accent fixed w-[clamp(160px,40vw,400px)] h-[clamp(160px,40vw,400px)] -bottom-16 sm:-bottom-32 -left-16 sm:-left-32 opacity-50" />
 
               <Navbar />
-              <main className="flex-1 relative z-10 pt-20">
+              <main className="flex-1 relative z-10 pt-16 sm:pt-18 md:pt-20">
                 {children}
               </main>
               <Footer />
+              <PWAInstallPrompt />
             </div>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                    window.addEventListener('load', function() {
+                      navigator.serviceWorker.register('/sw.js').then(
+                        function(reg) { console.log('SW registered:', reg.scope); },
+                        function(err) { console.log('SW registration failed:', err); }
+                      );
+                    });
+                  }
+                `
+              }}
+            />
           </TooltipProvider>
         </ThemeProvider>
       </body>

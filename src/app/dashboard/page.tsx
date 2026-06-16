@@ -80,39 +80,39 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] px-4 py-8">
+    <div className="min-h-[calc(100vh-6rem)] sm:min-h-[calc(100vh-8rem)] px-3 sm:px-4 py-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto space-y-8"
+        className="max-w-4xl mx-auto space-y-5 sm:space-y-6 md:space-y-8"
       >
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground mt-1">
             Track your performance and match history
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="glass rounded-2xl p-4 text-center"
+              className="glass rounded-xl sm:rounded-2xl p-2.5 sm:p-4 text-center"
             >
               <div
                 className={cn(
-                  "w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2",
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1.5 sm:mb-2",
                   stat.bg
                 )}
               >
-                <stat.icon className={cn("h-5 w-5", stat.color)} />
+                <stat.icon className={cn("h-4 w-4 sm:h-5 sm:w-5", stat.color)} />
               </div>
-              <p className="text-2xl font-bold tabular-nums">{stat.value}</p>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold tabular-nums">{stat.value}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {stat.label}
               </p>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
 
         {/* Win Rate Visual */}
         {totalGames > 0 && (
-          <div className="glass rounded-2xl p-6">
+          <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6">
             <h2 className="text-lg font-semibold mb-4">Performance</h2>
             <div className="flex gap-1 h-4 rounded-full overflow-hidden">
               {scores.O > 0 && (
@@ -174,7 +174,7 @@ export default function DashboardPage() {
         )}
 
         {/* Match History */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Recent Matches</h2>
             <Badge variant="secondary" className="text-xs">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2.5 sm:p-3 rounded-xl hover:bg-muted/50 transition-colors gap-2 sm:gap-0"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -242,8 +242,8 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
+                  <div className="text-left sm:text-right pl-12 sm:pl-0">
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">
                       {match.boardSize}×{match.boardSize} ·{" "}
                       {match.moves.length} moves · {match.duration}s
                     </p>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Offline — Game Galaxy Hub</title>
+  <style>
+    :root {
+      --bg: oklch(0.12 0.015 270);
+      --fg: oklch(0.95 0.01 260);
+      --primary: oklch(0.70 0.22 270);
+      --accent: oklch(0.42 0.14 163);
+    }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    /* Grid background */
+    .grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 1;
+    }
+    /* Decorative glowing orbs — responsive sizing */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      z-index: 0;
+    }
+    .orb-1 {
+      top: -50px;
+      left: -50px;
+      width: clamp(150px, 40vw, 300px);
+      height: clamp(150px, 40vw, 300px);
+      background: var(--primary);
+    }
+    .orb-2 {
+      bottom: -50px;
+      right: -50px;
+      width: clamp(150px, 40vw, 300px);
+      height: clamp(150px, 40vw, 300px);
+      background: var(--accent);
+    }
+    /* Card container — responsive */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1.25rem, 3vw, 2rem);
+      border-radius: clamp(1.25rem, 3vw, 2rem);
+      max-width: 380px;
+      width: min(90%, calc(100vw - 2rem));
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    /* Icon wrapper */
+    .icon {
+      width: clamp(48px, 10vw, 64px);
+      height: clamp(48px, 10vw, 64px);
+      border-radius: 1.25rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    .icon svg {
+      width: clamp(24px, 5vw, 32px);
+      height: clamp(24px, 5vw, 32px);
+      stroke: var(--accent);
+      animation: pulse 2s infinite ease-in-out;
+    }
+    h1 {
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+      font-weight: 800;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.025em;
+    }
+    p {
+      font-size: clamp(0.8rem, 2.5vw, 0.875rem);
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.5;
+      margin: 0 0 1.5rem;
+    }
+    /* Interactive Button — touch-friendly */
+    button {
+      background: var(--accent);
+      color: #0c0817;
+      border: none;
+      padding: 0.875rem 2rem;
+      border-radius: 1rem;
+      font-size: clamp(0.8rem, 2.5vw, 0.875rem);
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      min-height: 48px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(66, 241, 222, 0.15);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(66, 241, 222, 0.3);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .icon svg {
+        animation: none;
+      }
+      button {
+        transition: none;
+      }
+    }
+
+    /* Small screen adjustments */
+    @media (max-width: 360px) {
+      .card {
+        padding: 1.25rem 1rem;
+      }
+      .orb {
+        filter: blur(40px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="card">
+    <div class="icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1 1t4 4"></path>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.5"></path>
+        <path d="M5 12.5a10.94 10.94 0 0 1 5.17-2.69"></path>
+        <path d="M10.71 19.49a2 2 0 0 1 2.58 0"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+      </svg>
+    </div>
+    <h1>Connection Lost</h1>
+    <p>You are currently offline. Please check your internet connection and reload Game Galaxy Hub.</p>
+    <button onclick="window.location.reload()">Retry Connection</button>
+  </div>
+</body>
+</html>

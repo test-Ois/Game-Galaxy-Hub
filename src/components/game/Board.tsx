@@ -46,21 +46,21 @@ export function Board() {
 
   const boardWidth =
     boardSize === 3
-      ? "w-[min(85vw,420px)]"
+      ? "w-[min(85vw,340px)] sm:w-[min(88vw,380px)]"
       : boardSize === 4
-        ? "w-[min(90vw,480px)]"
-        : "w-[min(92vw,520px)]";
+        ? "w-[min(88vw,380px)] sm:w-[min(90vw,440px)]"
+        : "w-[min(90vw,400px)] sm:w-[min(92vw,480px)]";
 
   return (
-    <div className={`relative ${boardWidth} mx-auto`}>
+    <div className={`relative ${boardWidth} mx-auto glass rounded-[2rem] sm:rounded-[2.5rem] p-3 sm:p-5 shadow-2xl border border-border/40 bg-card/25 backdrop-blur-md`}>
       {/* Board grid */}
       <motion.div
-        className={`grid ${gridCols} gap-2 sm:gap-3`}
+        className={`grid ${gridCols} gap-2 sm:gap-4`}
         role="grid"
         aria-label="Tic Tac Toe game board"
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
       >
         {board.map((value, index) => (
           <Cell
@@ -78,20 +78,29 @@ export function Board() {
       {/* Win line SVG overlay */}
       {winLineCoords && (
         <svg
-          className="absolute inset-0 w-full h-full pointer-events-none z-20 win-line-svg"
+          className="absolute inset-0 w-full h-full pointer-events-none z-20 win-line-svg p-4 sm:p-5"
           viewBox="0 0 300 300"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
+          <defs>
+            <linearGradient id="winLineGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="oklch(0.75 0.22 30)" />
+              <stop offset="50%" stopColor="var(--primary)" />
+              <stop offset="100%" stopColor="var(--game-o)" />
+            </linearGradient>
+          </defs>
           <line
             x1={winLineCoords.x1}
             y1={winLineCoords.y1}
             x2={winLineCoords.x2}
             y2={winLineCoords.y2}
-            className="stroke-primary"
-            strokeWidth="6"
+            stroke="url(#winLineGlow)"
+            strokeWidth="10"
             strokeLinecap="round"
-            style={{ filter: "drop-shadow(0 0 8px var(--primary))" }}
+            style={{
+              filter: "drop-shadow(0 0 12px var(--primary)) drop-shadow(0 0 6px oklch(0.75 0.22 30))",
+            }}
           />
         </svg>
       )}

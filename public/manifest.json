@@ -1,0 +1,39 @@
+{
+  "name": "Game Galaxy Hub",
+  "short_name": "GameGalaxy",
+  "description": "Premium Real-Time Multiplayer Board Game Galaxy Hub",
+  "start_url": "/online",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#120224",
+  "theme_color": "#120224",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

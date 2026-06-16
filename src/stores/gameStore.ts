@@ -15,6 +15,9 @@ import type {
   Move,
   WinResult,
   MatchRecord,
+  OnlineRoom,
+  ChatMessage,
+  LudoRoomState,
 } from "@/lib/game/types";
 import {
   createEmptyBoard,
@@ -69,6 +72,28 @@ interface GameStore {
   // Match history
   matchHistory: MatchRecord[];
 
+  // Online state
+  onlinePlayerSymbol: Player | string | null;
+  onlineOpponentName: string | null;
+  onlineRoomId: string | null;
+  onlineRoom: OnlineRoom | null;
+  onlinePlayerId: string | null;
+  onOnlineMove: ((index: number) => void) | null;
+
+  // Online Best Of fields
+  currentRound: number;
+  maxRounds: number;
+  seriesScoreX: number;
+  seriesScoreO: number;
+  roundOver: boolean;
+  roundWinner: Player | "draw" | null;
+  rematchRequests: string[];
+
+  // Ludo & Chat state
+  chatHistory: ChatMessage[];
+  typingPlayers: Record<string, boolean>;
+  ludoState: LudoRoomState | null;
+
   // Actions
   makeMove: (index: number) => void;
   triggerAIMove: () => void;
@@ -80,6 +105,14 @@ interface GameStore {
   setMode: (mode: GameMode) => void;
   setDifficulty: (difficulty: Difficulty) => void;
   setSeriesMode: (series: SeriesMode) => void;
+  
+  // Online actions
+  setOnlineRoom: (room: OnlineRoom | null) => void;
+  setOnlinePlayerSymbol: (symbol: Player | string | null) => void;
+  setOnlineOpponentName: (name: string | null) => void;
+  setOnlinePlayerId: (playerId: string) => void;
+  setOnOnlineMove: (cb: ((index: number) => void) | null) => void;
+  updateFromOnlineRoom: (room: OnlineRoom) => void;
 }
 
 // ─── Store ─────────────────────────────────────────────────
@@ -117,11 +150,40 @@ export const useGameStore = create<GameStore>()(
 
       matchHistory: [],
 
+      // Online initial state
+      onlinePlayerSymbol: null,
+      onlineOpponentName: null,
+      onlineRoomId: null,
+      onlineRoom: null,
+      onlinePlayerId: null,
+      onOnlineMove: null,
+
+      // Online Best Of fields
+      currentRound: 1,
+      maxRounds: 3,
+      seriesScoreX: 0,
+      seriesScoreO: 0,
+      roundOver: false,
+      roundWinner: null,
+      rematchRequests: [],
+
+      // Ludo & Chat state
+      chatHistory: [],
+      typingPlayers: {},
+      ludoState: null,
+
       // ─── Actions ───────────────────────────────────────
 
       makeMove: (index: number) => {
         const state = get();
         if (state.isGameOver || state.board[index] !== null) return;
+
+        if (state.mode === "online") {
+          if (state.onOnlineMove) {
+            state.onOnlineMove(index);
+          }
+          return;
+        }
 
         const player = state.currentPlayer;
         const newBoard = applyMove(state.board, index, player);
@@ -367,6 +429,70 @@ export const useGameStore = create<GameStore>()(
           seriesWinner: null,
         });
         get().resetRound();
+      },
+
+      setOnlineRoom: (room) => set({ onlineRoom: room, onlineRoomId: room ? room.roomId : null }),
+      setOnlinePlayerSymbol: (symbol) => set({ onlinePlayerSymbol: symbol }),
+      setOnlineOpponentName: (name) => set({ onlineOpponentName: name }),
+      setOnlinePlayerId: (playerId) => set({ onlinePlayerId: playerId }),
+      setOnOnlineMove: (cb) => set({ onOnlineMove: cb }),
+      updateFromOnlineRoom: (room) => {
+        const state = get();
+        const opponent = room.players.find((p) => p.playerId !== state.onlinePlayerId);
+        
+        // Push finished online matches to match history automatically
+        let nextMatchHistory = state.matchHistory;
+        if (room.isGameOver && room.isSeriesComplete) {
+          const alreadyRecorded = state.matchHistory.some(m => m.id === `${room.roomId}-${room.history.length}`);
+          if (!alreadyRecorded) {
+            const playerO = room.players.find(p => p.symbol === "O")?.name || "Player O";
+            const playerX = room.players.find(p => p.symbol === "X")?.name || "Player X";
+            const record: MatchRecord = {
+              id: `${room.roomId}-${room.history.length}`,
+              mode: "online",
+              boardSize: room.settings.boardSize,
+              winner: room.winResult ? room.winResult.winner : "draw",
+              moves: room.history,
+              duration: 0,
+              date: new Date().toISOString(),
+              playerO,
+              playerX,
+            };
+            nextMatchHistory = [record, ...state.matchHistory].slice(0, 50);
+          }
+        }
+
+        set({
+          board: room.board,
+          boardSize: room.settings.boardSize,
+          currentPlayer: room.currentPlayer as Player,
+          isGameOver: room.isGameOver,
+          winResult: room.winResult,
+          moveCount: room.moveCount,
+          history: room.history,
+          scores: room.scores,
+          seriesWins: room.seriesWins,
+          seriesTarget: room.settings.targetWins,
+          seriesMode: room.settings.seriesMode,
+          isSeriesComplete: room.isSeriesComplete,
+          seriesWinner: room.seriesWinner as Player,
+          
+          currentRound: room.currentRound || 1,
+          maxRounds: room.maxRounds || room.settings.seriesMode,
+          seriesScoreX: room.seriesScoreX || 0,
+          seriesScoreO: room.seriesScoreO || 0,
+          roundOver: room.roundOver || false,
+          roundWinner: room.roundWinner || null,
+          rematchRequests: room.rematchRequests || [],
+
+          chatHistory: room.chatHistory || [],
+          ludoState: room.ludoState || null,
+
+          onlineRoom: room,
+          onlineRoomId: room.roomId,
+          onlineOpponentName: opponent ? opponent.name : null,
+          matchHistory: nextMatchHistory,
+        });
       },
     }),
     {

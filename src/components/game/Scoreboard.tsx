@@ -21,6 +21,10 @@ export function Scoreboard() {
   const moveCount = useGameStore((s) => s.moveCount);
   const mode = useGameStore((s) => s.mode);
   const isAIThinking = useGameStore((s) => s.isAIThinking);
+  const onlineRoom = useGameStore((s) => s.onlineRoom);
+  const onlinePlayerId = useGameStore((s) => s.onlinePlayerId);
+  const seriesScoreO = useGameStore((s) => s.seriesScoreO);
+  const seriesScoreX = useGameStore((s) => s.seriesScoreX);
 
   const { elapsed, start, stop, reset } = useGameTimer();
 
@@ -36,9 +40,9 @@ export function Scoreboard() {
   }, [isGameOver]);
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-3">
+    <div className="w-full max-w-[95vw] sm:max-w-md mx-auto space-y-2 sm:space-y-3">
       {/* Turn Indicator */}
-      <div className="glass rounded-2xl p-3">
+      <div className="glass rounded-xl sm:rounded-2xl p-2.5 sm:p-3">
         <div className="flex items-center justify-between">
           {/* Current Turn */}
           <div className="flex items-center gap-3">
@@ -88,14 +92,14 @@ export function Scoreboard() {
                   "text-base font-bold",
                   "text-game-o"
                 )}>
-                  {seriesWins.O}
+                  {mode === "online" ? seriesScoreO : seriesWins.O}
                 </span>
                 <span className="text-muted-foreground">-</span>
                 <span className={cn(
                   "text-base font-bold",
                   "text-game-x"
                 )}>
-                  {seriesWins.X}
+                  {mode === "online" ? seriesScoreX : seriesWins.X}
                 </span>
               </div>
             </div>
@@ -105,8 +109,10 @@ export function Scoreboard() {
         {/* Series Progress Bar */}
         <div className="mt-3 flex gap-1.5">
           {Array.from({ length: seriesTarget * 2 - 1 }).map((_, i) => {
-            const isOWin = i < seriesWins.O;
-            const isXWin = i >= seriesTarget * 2 - 1 - seriesWins.X;
+            const oWins = mode === "online" ? seriesScoreO : seriesWins.O;
+            const xWins = mode === "online" ? seriesScoreX : seriesWins.X;
+            const isOWin = i < oWins;
+            const isXWin = i >= seriesTarget * 2 - 1 - xWins;
             return (
               <div
                 key={i}
@@ -125,10 +131,22 @@ export function Scoreboard() {
       </div>
 
       {/* Score Cards */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
         <ScoreCard
-          label={mode === "pvai" ? "You (O)" : "Player O"}
-          value={scores.O}
+          label={
+            mode === "online" && onlineRoom
+              ? (() => {
+                  const player = onlineRoom.players.find((p) => p.symbol === "O");
+                  if (!player) return "Player O";
+                  const isMe = player.playerId === onlinePlayerId;
+                  const truncated = player.name.length > 7 ? player.name.substring(0, 6) + "…" : player.name;
+                  return truncated + (isMe ? " (You)" : "");
+                })()
+              : mode === "pvai"
+                ? "You (O)"
+                : "Player O"
+          }
+          value={mode === "online" ? seriesScoreO : scores.O}
           icon={<User className="h-3.5 w-3.5" />}
           color="text-game-o"
         />
@@ -139,8 +157,20 @@ export function Scoreboard() {
           color="text-muted-foreground"
         />
         <ScoreCard
-          label={mode === "pvai" ? "AI (X)" : "Player X"}
-          value={scores.X}
+          label={
+            mode === "online" && onlineRoom
+              ? (() => {
+                  const player = onlineRoom.players.find((p) => p.symbol === "X");
+                  if (!player) return "Player X";
+                  const isMe = player.playerId === onlinePlayerId;
+                  const truncated = player.name.length > 7 ? player.name.substring(0, 6) + "…" : player.name;
+                  return truncated + (isMe ? " (You)" : "");
+                })()
+              : mode === "pvai"
+                ? "AI (X)"
+                : "Player X"
+          }
+          value={mode === "online" ? seriesScoreX : scores.X}
           icon={mode === "pvai" ? <Bot className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
           color="text-game-x"
         />
@@ -161,10 +191,10 @@ function ScoreCard({
   color: string;
 }) {
   return (
-    <div className="glass rounded-xl p-3 text-center">
-      <div className={cn("flex items-center justify-center gap-1.5 mb-1", color)}>
+    <div className="glass rounded-lg sm:rounded-xl p-2 sm:p-3 text-center flex flex-col items-center justify-center min-w-0">
+      <div className={cn("flex items-center justify-center gap-1 w-full min-w-0", color)}>
         {icon}
-        <span className="text-[11px] font-medium uppercase tracking-wider">
+        <span className="text-[8px] sm:text-[11px] font-bold uppercase tracking-wider truncate block text-ellipsis max-w-full">
           {label}
         </span>
       </div>
@@ -173,7 +203,7 @@ function ScoreCard({
           key={value}
           initial={{ y: -8, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className={cn("text-2xl font-bold tabular-nums", color)}
+          className={cn("text-xl sm:text-2xl font-bold tabular-nums mt-0.5 sm:mt-1", color)}
         >
           {value}
         </motion.span>

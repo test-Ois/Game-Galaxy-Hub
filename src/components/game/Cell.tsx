@@ -85,36 +85,38 @@ export const Cell = memo(function Cell({
       onClick={handleClick}
       disabled={isDisabled || value !== null}
       className={cn(
-        "relative aspect-square rounded-2xl font-bold flex items-center justify-center",
-        "transition-all duration-200 outline-none",
-        "border border-border/50",
+        "relative aspect-square rounded-xl sm:rounded-[1.5rem] font-bold flex items-center justify-center",
+        "transition-all duration-300 outline-none",
+        "border border-border/40 shadow-sm",
         cellSize,
 
         // Empty cell
         value === null && !isDisabled && [
           "cursor-pointer",
-          "bg-card/60 hover:bg-card",
-          "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
-          "hover:scale-[1.03] active:scale-[0.97]",
+          "bg-card/40 hover:bg-card/90",
+          "hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10",
+          "hover:scale-[1.04]",
         ],
 
         // Filled cell
-        value !== null && "cursor-default bg-card/40",
+        value !== null && "cursor-default bg-card/65 dark:bg-card/30 shadow-inner",
 
-        // Mark colors
-        value === "X" && "text-game-x",
-        value === "O" && "text-game-o",
+        // Mark colors with premium neon glow shadows
+        value === "X" && "text-game-x drop-shadow-[0_0_12px_rgba(244,63,94,0.45)]",
+        value === "O" && "text-game-o drop-shadow-[0_0_12px_rgba(59,130,246,0.45)]",
 
-        // Win cell
+        // Win cell with intense neon glow highlights
         isWinCell && [
-          "animate-pulse-glow border-primary/50 bg-primary/10",
-          "shadow-lg shadow-primary/20",
+          "border-primary bg-primary/20",
+          "shadow-[0_0_25px_var(--game-glow)] z-10",
         ],
 
         // Disabled
-        isDisabled && value === null && "cursor-not-allowed opacity-50",
+        isDisabled && value === null && "cursor-not-allowed opacity-40",
       )}
-      whileTap={value === null && !isDisabled ? { scale: 0.93 } : undefined}
+      animate={isWinCell ? { scale: [1, 1.05, 1], rotate: [0, 0.5, -0.5, 0] } : {}}
+      transition={isWinCell ? { duration: 1, repeat: Infinity, ease: "easeInOut" } : {}}
+      whileTap={value === null && !isDisabled ? { scale: 0.94 } : undefined}
       role="gridcell"
       aria-label={
         value ? `Cell ${index + 1}: ${value}` : `Cell ${index + 1}: empty`
@@ -133,7 +135,7 @@ export const Cell = memo(function Cell({
             stiffness: 400,
             damping: 15,
           }}
-          className="relative z-10"
+          className="relative z-10 w-full h-full flex items-center justify-center"
         >
           {value === "X" ? <XMark /> : <OMark />}
         </motion.div>

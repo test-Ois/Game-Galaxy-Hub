@@ -22,7 +22,7 @@ const sampleLeaderboard = [
   { rank: 1, name: "GrandMaster_Q", xp: 5200, wins: 342, rankTitle: "Grandmaster" },
   { rank: 2, name: "StrategyKing", xp: 3800, wins: 256, rankTitle: "Master" },
   { rank: 3, name: "AISlayer", xp: 2100, wins: 178, rankTitle: "Master" },
-  { rank: 4, name: "TicTacPro", xp: 1500, wins: 134, rankTitle: "Diamond" },
+  { rank: 4, name: "GalaxyPro", xp: 1500, wins: 134, rankTitle: "Diamond" },
   { rank: 5, name: "GridWizard", xp: 980, wins: 98, rankTitle: "Platinum" },
   { rank: 6, name: "MoveFirst", xp: 750, wins: 76, rankTitle: "Platinum" },
   { rank: 7, name: "Thinker42", xp: 450, wins: 54, rankTitle: "Gold" },
@@ -41,31 +41,31 @@ const rankIcons: Record<string, React.ReactNode> = {
 
 export default function LeaderboardPage() {
   return (
-    <div className="min-h-[calc(100vh-8rem)] px-4 py-8">
+    <div className="min-h-[calc(100vh-6rem)] sm:min-h-[calc(100vh-8rem)] px-3 sm:px-4 py-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto space-y-8"
+        className="max-w-4xl mx-auto space-y-5 sm:space-y-6 md:space-y-8"
       >
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Leaderboard</h1>
           <p className="text-muted-foreground mt-1">
             Global rankings, achievements, and progression
           </p>
         </div>
 
         {/* Rank System */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-4">Ranking System</h2>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {RANK_THRESHOLDS.map((rank) => (
               <div
                 key={rank.name}
-                className="glass rounded-xl px-4 py-2.5 flex items-center gap-2"
+                className="glass rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-1.5 sm:gap-2"
               >
                 {rankIcons[rank.name]}
-                <span className="text-sm font-medium">{rank.name}</span>
+                <span className="text-xs sm:text-sm font-medium">{rank.name}</span>
                 <Badge variant="secondary" className="text-[10px]">
                   {rank.minXP}+ XP
                 </Badge>
@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Leaderboard Table */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Top Players</h2>
             <Badge variant="secondary" className="text-xs">
@@ -91,7 +91,7 @@ export default function LeaderboardPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
                 className={cn(
-                  "flex items-center justify-between p-3 rounded-xl transition-colors",
+                  "flex items-center justify-between p-2.5 sm:p-3 rounded-xl transition-colors",
                   player.rank <= 3
                     ? "bg-primary/5 hover:bg-primary/10"
                     : "hover:bg-muted/50"
@@ -119,8 +119,8 @@ export default function LeaderboardPage() {
                   </div>
 
                   {/* Player Info */}
-                  <div>
-                    <p className="text-sm font-semibold">{player.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm font-semibold truncate max-w-[100px] sm:max-w-none">{player.name}</p>
                     <div className="flex items-center gap-1.5">
                       {rankIcons[player.rankTitle]}
                       <span className="text-xs text-muted-foreground">
@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
 
                 {/* Stats */}
                 <div className="text-right">
-                  <p className="text-sm font-bold tabular-nums">
+                  <p className="text-xs sm:text-sm font-bold tabular-nums">
                     {player.xp.toLocaleString()} XP
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -145,7 +145,7 @@ export default function LeaderboardPage() {
         </div>
 
         {/* Achievements */}
-        <div className="glass rounded-2xl p-6">
+        <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6">
           <h2 className="text-lg font-semibold mb-4">Achievements</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {ACHIEVEMENTS_LIST.map((achievement, i) => (

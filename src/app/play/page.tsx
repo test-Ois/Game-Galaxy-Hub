@@ -45,12 +45,12 @@ export default function PlayPage() {
 
   return (
     <>
-      <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-8">
+      <div className="min-h-[calc(100vh-6rem)] sm:min-h-[calc(100vh-8rem)] flex items-center justify-center px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="w-full max-w-lg space-y-6"
+          className="w-full max-w-[95vw] sm:max-w-lg space-y-3 sm:space-y-4 md:space-y-6"
         >
           {/* Page Title */}
           <div className="text-center">
@@ -68,7 +68,7 @@ export default function PlayPage() {
           <Scoreboard />
 
           {/* Game Board */}
-          <div className="flex justify-center">
+          <div className="flex justify-center my-2 sm:my-4">
             <Board />
           </div>
 
