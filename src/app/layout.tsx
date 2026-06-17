@@ -35,6 +35,13 @@ export const metadata: Metadata = {
     title: "Game Galaxy Hub",
     description: "Premium Real-Time Multiplayer Board Game Galaxy Hub",
     type: "website",
+    images: ["/logo.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Game Galaxy Hub",
+    description: "Premium Real-Time Multiplayer Board Game Galaxy Hub",
+    images: ["/logo.png"],
   },
 };
 

@@ -133,6 +133,7 @@ export default function LudoRoomPage() {
   const toggleVoiceSpeaker = useSettingsStore((s) => s.toggleVoiceSpeaker);
 
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
   const [unreadChatCount, setUnreadChatCount] = useState(0);
@@ -519,10 +520,7 @@ export default function LudoRoomPage() {
           <Button
             onClick={() => {
               playClick();
-              if (confirm("Are you sure you want to leave the room?")) {
-                leaveRoom();
-                router.push("/online");
-              }
+              setShowExitConfirm(true);
             }}
             variant="ghost"
             size="icon"
@@ -538,59 +536,57 @@ export default function LudoRoomPage() {
           </div>
         </div>
 
-        {/* Header Action controls (Lobby-only to avoid duplicate layout clutter) */}
-        {onlineRoom.status !== "playing" && (
-          <div className="flex items-center gap-1.5">
-            {/* Speaker Button */}
-            <Button
-              onClick={() => {
-                playClick();
-                toggleVoiceSpeaker();
-              }}
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-xl border-border/50 hover:bg-accent transition-all shrink-0"
-              aria-label="Toggle voice output"
-            >
-              {voiceSpeakerEnabled ? <Volume2 className="h-4.5 w-4.5 text-primary" /> : <VolumeX className="h-4.5 w-4.5 text-muted-foreground" />}
-            </Button>
+        {/* Header Action controls */}
+        <div className="flex items-center gap-1.5">
+          {/* Speaker Button */}
+          <Button
+            onClick={() => {
+              playClick();
+              toggleVoiceSpeaker();
+            }}
+            variant="outline"
+            size="icon"
+            className="w-10 h-10 rounded-xl border-border/50 hover:bg-accent transition-all shrink-0"
+            aria-label="Toggle voice output"
+          >
+            {voiceSpeakerEnabled ? <Volume2 className="h-4.5 w-4.5 text-primary" /> : <VolumeX className="h-4.5 w-4.5 text-muted-foreground" />}
+          </Button>
 
-            {/* Mic Button */}
-            <Button
-              onClick={() => {
-                playClick();
-                toggleMic();
-              }}
-              variant="outline"
-              size="icon"
-              className={cn(
-                "w-10 h-10 rounded-xl border-border/50 transition-all shrink-0",
-                micActive ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/15" : "hover:bg-accent"
-              )}
-              aria-label="Toggle microphone"
-            >
-              {micActive ? <Mic className="h-4.5 w-4.5" /> : <MicOff className="h-4.5 w-4.5 text-muted-foreground" />}
-            </Button>
+          {/* Mic Button */}
+          <Button
+            onClick={() => {
+              playClick();
+              toggleMic();
+            }}
+            variant="outline"
+            size="icon"
+            className={cn(
+              "w-10 h-10 rounded-xl border-border/50 transition-all shrink-0",
+              micActive ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/15" : "hover:bg-accent"
+            )}
+            aria-label="Toggle microphone"
+          >
+            {micActive ? <Mic className="h-4.5 w-4.5" /> : <MicOff className="h-4.5 w-4.5 text-muted-foreground" />}
+          </Button>
 
-            {/* Chat Panel Trigger */}
-            <Button
-              onClick={() => {
-                playClick();
-                setIsChatOpen(!isChatOpen);
-              }}
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-xl border-border/50 hover:bg-accent transition-all shrink-0 relative"
-            >
-              <MessageSquare className="h-4.5 w-4.5 text-primary" />
-              {unreadChatCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
-                  {unreadChatCount}
-                </span>
-              )}
-            </Button>
-          </div>
-        )}
+          {/* Chat Panel Trigger */}
+          <Button
+            onClick={() => {
+              playClick();
+              setIsChatOpen(!isChatOpen);
+            }}
+            variant="outline"
+            size="icon"
+            className="w-10 h-10 rounded-xl border-border/50 hover:bg-accent transition-all shrink-0 relative"
+          >
+            <MessageSquare className="h-4.5 w-4.5 text-primary" />
+            {unreadChatCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-pulse">
+                {unreadChatCount}
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* NEW PREMIUM TOP HUD (visible during active play) */}
@@ -1184,10 +1180,7 @@ export default function LudoRoomPage() {
               <Button
                 onClick={() => {
                   playClick();
-                  if (confirm("Return to Lobby?")) {
-                    leaveRoom();
-                    router.push("/online");
-                  }
+                  setShowExitConfirm(true);
                 }}
                 variant="ghost"
                 className="w-full h-11 rounded-xl text-xs hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all"
@@ -1204,6 +1197,75 @@ export default function LudoRoomPage() {
       {/* RENDER CHAT PANEL SLIDE DRAWER */}
       <ChatPanel isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
+      {/* Leave Room Modal */}
+      {showExitConfirm && (
+        <ExitConfirmationModal
+          isMatchActive={onlineRoom.status === "playing"}
+          onClose={() => setShowExitConfirm(false)}
+          onConfirm={() => {
+            playClick();
+            leaveRoom();
+            router.push("/online");
+          }}
+        />
+      )}
+
     </div>
+  );
+}
+
+interface ExitModalProps {
+  isMatchActive: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
+function ExitConfirmationModal({ isMatchActive, onClose, onConfirm }: ExitModalProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/60 backdrop-blur-md select-none"
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 15 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 15 }}
+        className="w-full max-w-[95vw] sm:max-w-sm glass-strong rounded-3xl p-6 text-center space-y-5 shadow-2xl"
+      >
+        <div className="mx-auto h-12 w-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center">
+          <LogOut className="h-6 w-6" />
+        </div>
+        
+        <div className="space-y-1">
+          <h2 className="text-lg font-bold">Leave Room?</h2>
+          <p className="text-sm text-muted-foreground px-2">
+            Are you sure you want to leave this room?
+          </p>
+          {isMatchActive && (
+            <p className="text-xs font-bold text-red-500 mt-1">
+              ⚠️ Leaving now will forfeit your current match.
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="w-full sm:flex-1 h-12 rounded-xl text-sm font-semibold border border-border/30 hover:bg-card/40"
+          >
+            Stay
+          </Button>
+          <Button
+            onClick={onConfirm}
+            className="w-full sm:flex-1 h-12 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-500/15"
+          >
+            Leave Room
+          </Button>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }

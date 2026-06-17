@@ -374,10 +374,7 @@ export const useGameStore = create<GameStore>()(
           seriesWinner: null,
         });
 
-        // If AI starts, trigger its move
-        if (state.mode === "pvai" && startPlayer === "X") {
-          setTimeout(() => get().triggerAIMove(), 300);
-        }
+        // If AI starts, the play page's useEffect will trigger its move based on currentPlayer
       },
 
       resetAll: () => {

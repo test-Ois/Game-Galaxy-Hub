@@ -19,6 +19,17 @@ interface ChatPanelProps {
 
 const QUICK_EMOJIS = ["😀", "🔥", "😂", "👍", "👎", "😮", "🎉", "☠️", "⚔️", "👑"];
 
+const QUICK_PHRASES = [
+  "Hello 👋",
+  "Good Luck 🍀",
+  "Nice Move 👍",
+  "Well Played 🔥",
+  "Hurry Up ⏰",
+  "Your Turn 🎯",
+  "Oops 😅",
+  "Good Game ❤️"
+];
+
 export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
   const { sendChatMessage, sendTypingState } = useOnlineSocket();
   const chatHistory = useGameStore((s) => s.chatHistory);
@@ -28,6 +39,8 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
 
   const [inputVal, setInputVal] = useState("");
   const [showEmojis, setShowEmojis] = useState(false);
+  const [activeTab, setActiveTab] = useState<"chat" | "activity">("chat");
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -36,7 +49,7 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [chatHistory, isOpen]);
+  }, [chatHistory, isOpen, activeTab]);
 
   // Handle typing state broadcast
   const handleInputChange = (val: string) => {
@@ -70,6 +83,11 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
     }
   };
 
+  const sendPhrase = (phrase: string) => {
+    if (!sendChatMessage) return;
+    sendChatMessage(phrase);
+  };
+
   const insertEmoji = (emoji: string) => {
     setInputVal((prev) => prev + emoji);
     setShowEmojis(false);
@@ -82,6 +100,15 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
       const p = onlineRoom?.players.find((player) => player.playerId === id);
       return p ? p.name : "Someone";
     });
+
+  // Filter messages based on tab
+  const filteredMessages = chatHistory.filter((msg) => {
+    if (activeTab === "chat") {
+      return msg.type === "chat";
+    } else {
+      return msg.type === "system";
+    }
+  });
 
   return (
     <AnimatePresence>
@@ -128,18 +155,46 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
               </Button>
             </div>
 
+            {/* Tab Selector */}
+            <div className="flex border-b border-border/40 bg-muted/20 p-1 shrink-0">
+              <button
+                onClick={() => setActiveTab("chat")}
+                className={cn(
+                  "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
+                  activeTab === "chat"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Chat Messages
+              </button>
+              <button
+                onClick={() => setActiveTab("activity")}
+                className={cn(
+                  "flex-1 py-2 text-xs font-bold rounded-lg transition-all",
+                  activeTab === "activity"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Game Activity
+              </button>
+            </div>
+
             {/* Chat Body */}
             <div
               ref={scrollRef}
               className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent"
             >
-              {chatHistory.length === 0 ? (
+              {filteredMessages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-2">
                   <MessageSquare className="h-8 w-8 stroke-1 text-muted-foreground/50" />
-                  <p className="text-sm">No messages yet. Say hello!</p>
+                  <p className="text-sm">
+                    {activeTab === "chat" ? "No chat messages yet. Say hello!" : "No game activity logged."}
+                  </p>
                 </div>
               ) : (
-                chatHistory.map((msg) => {
+                filteredMessages.map((msg) => {
                   const isMe = msg.senderId === onlinePlayerId;
                   const isSystem = msg.type === "system";
 
@@ -152,7 +207,7 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
                     return (
                       <div key={msg.id} className="flex justify-center my-1 select-none">
                         <span className={cn(
-                          "px-3 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5",
+                          "px-3 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-1.5 text-center",
                           badgeColor
                         )}>
                           {msg.content}
@@ -191,7 +246,7 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
             </div>
 
             {/* Typing indicators */}
-            {typingNames.length > 0 && (
+            {typingNames.length > 0 && activeTab === "chat" && (
               <div className="px-4 py-1.5 bg-background/50 border-t border-border/20 text-xs text-muted-foreground/80 flex items-center gap-1.5 select-none animate-pulse">
                 <div className="flex gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/60 animate-bounce delay-75" />
@@ -204,9 +259,24 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
               </div>
             )}
 
+            {/* Quick Phrases */}
+            {activeTab === "chat" && (
+              <div className="px-3 py-2 border-t border-border/20 bg-muted/10 flex gap-2 overflow-x-auto scrollbar-none select-none shrink-0">
+                {QUICK_PHRASES.map((phrase) => (
+                  <button
+                    key={phrase}
+                    onClick={() => sendPhrase(phrase)}
+                    className="px-3 py-1 rounded-full text-xs font-semibold bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border/30 whitespace-nowrap active:scale-95 transition-all"
+                  >
+                    {phrase}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Quick Emojis Drawer */}
-            {showEmojis && (
-              <div className="p-2 border-t border-border/20 bg-muted/40 flex items-center justify-around flex-wrap gap-1 select-none">
+            {showEmojis && activeTab === "chat" && (
+              <div className="p-2 border-t border-border/20 bg-muted/40 flex items-center justify-around flex-wrap gap-1 select-none shrink-0">
                 {QUICK_EMOJIS.map((emoji) => (
                   <button
                     key={emoji}
@@ -220,41 +290,47 @@ export function ChatPanel({ isOpen, onClose }: ChatPanelProps) {
             )}
 
             {/* Footer Input */}
-            <div className="p-3 border-t border-border/40 flex items-center gap-2 bg-background/50">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowEmojis(!showEmojis)}
-                className={cn(
-                  "h-11 w-11 rounded-xl hover:bg-accent shrink-0 border border-border/30 transition-all",
-                  showEmojis && "bg-accent border-primary/20 text-primary"
-                )}
-                aria-label="Toggle emoji picker"
-              >
-                <Smile className="h-5 w-5" />
-              </Button>
+            {activeTab === "chat" ? (
+              <div className="p-3 border-t border-border/40 flex items-center gap-2 bg-background/50 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowEmojis(!showEmojis)}
+                  className={cn(
+                    "h-11 w-11 rounded-xl hover:bg-accent shrink-0 border border-border/30 transition-all",
+                    showEmojis && "bg-accent border-primary/20 text-primary"
+                  )}
+                  aria-label="Toggle emoji picker"
+                >
+                  <Smile className="h-5 w-5" />
+                </Button>
 
-              <input
-                type="text"
-                maxLength={100}
-                placeholder="Type a message..."
-                value={inputVal}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSend();
-                }}
-                className="flex-1 h-11 px-4 rounded-xl bg-card border border-border text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-              />
+                <input
+                  type="text"
+                  maxLength={100}
+                  placeholder="Type a message..."
+                  value={inputVal}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSend();
+                  }}
+                  className="flex-1 h-11 px-4 rounded-xl bg-card border border-border text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                />
 
-              <Button
-                onClick={handleSend}
-                disabled={!inputVal.trim()}
-                className="h-11 w-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center shrink-0 shadow-md"
-                aria-label="Send message"
-              >
-                <Send className="h-4.5 w-4.5" />
-              </Button>
-            </div>
+                <Button
+                  onClick={handleSend}
+                  disabled={!inputVal.trim()}
+                  className="h-11 w-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground flex items-center justify-center shrink-0 shadow-md"
+                  aria-label="Send message"
+                >
+                  <Send className="h-4.5 w-4.5" />
+                </Button>
+              </div>
+            ) : (
+              <div className="p-4 border-t border-border/40 text-center text-xs text-muted-foreground bg-muted/10 shrink-0 select-none">
+                Logs are updated automatically in real-time.
+              </div>
+            )}
           </motion.div>
         </>
       )}

@@ -594,6 +594,17 @@ export default function OnlinePlayPage() {
               <Share2 className="h-3.5 w-3.5" />
               Invite Link
             </Button>
+            <Button
+              onClick={() => {
+                playClick();
+                setShowExitConfirm(true);
+              }}
+              variant="outline"
+              className="flex-1 sm:flex-initial h-10 sm:h-11 px-3 sm:px-4 rounded-xl font-bold text-[10px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5 border-red-500/35 text-red-500 hover:bg-red-500/10"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Leave
+            </Button>
           </div>
         </div>
 

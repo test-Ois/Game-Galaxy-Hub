@@ -2,7 +2,7 @@
   "name": "Game Galaxy Hub",
   "short_name": "GameGalaxy",
   "description": "Premium Real-Time Multiplayer Board Game Galaxy Hub",
-  "start_url": "/online",
+  "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#120224",

@@ -12,8 +12,8 @@ import { useSound } from "@/hooks/useSound";
 import type { BoardSize, SeriesMode, OnlineRoom } from "@/lib/game/types";
 
 let socketInstance: Socket | null = null;
-let roomCreatedCallback: ((roomId: string) => void) | null = null;
-let roomJoinedCallback: ((roomId: string) => void) | null = null;
+let roomCreatedCallback: ((roomId: string, gameType: string) => void) | null = null;
+let roomJoinedCallback: ((roomId: string, gameType: string) => void) | null = null;
 let errorCallback: ((msg: string) => void) | null = null;
 
 export function useOnlineSocket() {
@@ -76,7 +76,9 @@ export function useOnlineSocket() {
         setOnlinePlayerSymbol(host.symbol);
       }
       if (roomCreatedCallback) {
-        roomCreatedCallback(room.roomId);
+        const cb = roomCreatedCallback;
+        roomCreatedCallback = null;
+        cb(room.roomId, room.gameType || "tictactoe");
       }
     });
 
@@ -89,7 +91,9 @@ export function useOnlineSocket() {
       }
       updateFromOnlineRoom(room);
       if (roomJoinedCallback) {
-        roomJoinedCallback(room.roomId);
+        const cb = roomJoinedCallback;
+        roomJoinedCallback = null;
+        cb(room.roomId, room.gameType || "tictactoe");
       }
     });
 
@@ -116,7 +120,9 @@ export function useOnlineSocket() {
     socketInstance.on("errorMsg", (msg) => {
       playErrorRef.current();
       if (errorCallback) {
-        errorCallback(msg);
+        const cb = errorCallback;
+        errorCallback = null;
+        cb(msg);
       } else {
         alert(msg);
       }
@@ -171,18 +177,18 @@ export function useOnlineSocket() {
     let maxPlayers = 2;
     let boardSize: BoardSize = 3;
     let seriesMode: SeriesMode = 3;
-    let callback: ((roomId: string) => void) | undefined;
+    let callback: ((roomId: string, gameType: string) => void) | undefined;
 
     if (typeof arg2 === "string") {
       gameType = arg2;
       maxPlayers = arg3 as number;
       boardSize = arg4 as BoardSize;
       seriesMode = arg5 as SeriesMode;
-      callback = arg6 as ((roomId: string) => void) | undefined;
+      callback = arg6 as ((roomId: string, gameType: string) => void) | undefined;
     } else {
       boardSize = arg2 as BoardSize;
       seriesMode = arg3 as SeriesMode;
-      callback = arg4 as ((roomId: string) => void) | undefined;
+      callback = arg4 as ((roomId: string, gameType: string) => void) | undefined;
     }
 
     if (callback) roomCreatedCallback = callback;
@@ -197,7 +203,7 @@ export function useOnlineSocket() {
   }, [connect]);
 
   // Join Room action
-  const joinRoom = useCallback((name: string, roomId: string, onJoined?: (roomId: string) => void, onError?: (msg: string) => void) => {
+  const joinRoom = useCallback((name: string, roomId: string, onJoined?: (roomId: string, gameType: string) => void, onError?: (msg: string) => void) => {
     const s = connect();
     const { onlinePlayerId } = useGameStore.getState();
     if (onJoined) roomJoinedCallback = onJoined;

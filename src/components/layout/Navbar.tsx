@@ -46,8 +46,8 @@ function NavbarContent() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
-                <Gamepad2 className="h-5 w-5 text-primary-foreground" />
+              <div className="relative h-9 w-9 rounded-xl overflow-hidden bg-background flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow">
+                <img src="/logo.png" alt="GGH Logo" className="h-full w-full object-cover" />
               </div>
               <span className="text-sm sm:text-base font-black tracking-widest text-foreground uppercase select-none transition-colors group-hover:text-primary">
                 Game Galaxy Hub

@@ -19,7 +19,7 @@ export const GAMES_CONFIG: GameConfig[] = [
     bannerGradient: "from-violet-600/20 via-purple-600/10 to-transparent",
     modes: ["offline", "online"],
     offlinePath: "/play/tictactoe/offline",
-    onlinePath: "/play/tictactoe/online",
+    onlinePath: "/online?game=tictactoe",
   },
   {
     id: "ludo",
@@ -29,7 +29,7 @@ export const GAMES_CONFIG: GameConfig[] = [
     bannerGradient: "from-amber-600/20 via-orange-600/10 to-transparent",
     modes: ["offline", "online"],
     offlinePath: "/play/ludo/offline",
-    onlinePath: "/play/ludo/online",
+    onlinePath: "/online?game=ludo",
   },
   {
     id: "snake",

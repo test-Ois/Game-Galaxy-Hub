@@ -103,10 +103,9 @@ function OnlineLobbyPageContent() {
     joinRoom(
       nickname,
       joinCode,
-      (roomId) => {
+      (roomId, gameType) => {
         setIsLoading(false);
-        const room = useGameStore.getState().onlineRoom;
-        if (room && room.gameType === "ludo") {
+        if (gameType === "ludo") {
           router.push(`/play/ludo/${roomId}`);
         } else {
           router.push(`/play/online/${roomId}`);
