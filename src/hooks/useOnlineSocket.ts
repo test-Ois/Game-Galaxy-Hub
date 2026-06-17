@@ -47,7 +47,7 @@ export function useOnlineSocket() {
   const connect = useCallback(() => {
     if (socketInstance) return socketInstance;
 
-    const socketUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
     
     socketInstance = io(socketUrl, {
       autoConnect: true,
