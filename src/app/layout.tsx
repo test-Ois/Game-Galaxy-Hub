@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { PWAInstallPrompt } from "@/components/layout/PWAInstallPrompt";
-import "./globals.css";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
+import { Navbar } from "@/shared/components/layout/Navbar";
+import { Footer } from "@/shared/components/layout/Footer";
+import { PWAInstallPrompt } from "@/shared/components/layout/PWAInstallPrompt";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Game Galaxy Hub — Play Multiple Games in One Place",

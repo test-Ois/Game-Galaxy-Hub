@@ -5,9 +5,9 @@
   "description": "Premium Real-Time Multiplayer Board Game Galaxy Hub",
   "author": "Qayoom Akhtar",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "node server/src/app.js",
     "build": "next build",
-    "start": "node server.js --production",
+    "start": "node server/src/app.js --production",
     "lint": "eslint",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },

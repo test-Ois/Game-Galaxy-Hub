@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Bot, Users, Grid3X3 } from "lucide-react";
-import { GAMES_CONFIG, GameConfig } from "@/lib/game/config";
-import { GameCard } from "@/components/game/GameCard";
-import { GameDetailsModal } from "@/components/game/GameDetailsModal";
+import { GAMES_CONFIG, GameConfig } from "@/shared/config/gameConfig";
+import { GameCard, GameDetailsModal } from "@/features/multiplayer";
 
 const features = [
   {

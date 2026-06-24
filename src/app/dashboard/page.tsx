@@ -15,10 +15,10 @@ import {
   Bot,
   Users,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useGameStore } from "@/stores/gameStore";
-import { formatRelativeTime } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { Badge } from "@/shared/components/ui/badge";
+import { useGameStore } from "@/store/gameStore";
+import { formatRelativeTime } from "@/shared/services/utils";
+import { cn } from "@/shared/services/utils";
 
 export default function DashboardPage() {
   const matchHistory = useGameStore((s) => s.matchHistory);

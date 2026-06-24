@@ -6,12 +6,9 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Board } from "@/components/game/Board";
-import { GameControls } from "@/components/game/GameControls";
-import { Scoreboard } from "@/components/game/Scoreboard";
-import { GameOverModal } from "@/components/game/GameOverModal";
-import { useGameStore } from "@/stores/gameStore";
-import { useSound } from "@/hooks/useSound";
+import { Board, GameControls, Scoreboard, GameOverModal } from "@/features/tictactoe";
+import { useGameStore } from "@/store/gameStore";
+import { useSound } from "@/shared/hooks/useSound";
 
 export default function PlayPage() {
   const currentPlayer = useGameStore((s) => s.currentPlayer);

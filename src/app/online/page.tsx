@@ -8,12 +8,12 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Gamepad2, Plus, LogIn, Grid3X3, Trophy, ChevronRight, User, ArrowLeft, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useOnlineSocket } from "@/hooks/useOnlineSocket";
-import { useGameStore } from "@/stores/gameStore";
-import { useSound } from "@/hooks/useSound";
-import type { BoardSize, SeriesMode } from "@/lib/game/types";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import { useOnlineSocket } from "@/features/multiplayer";
+import { useGameStore } from "@/store/gameStore";
+import { useSound } from "@/shared/hooks/useSound";
+import type { BoardSize, SeriesMode } from "@/shared/types/game";
 
 function OnlineLobbyPageContent() {
   const router = useRouter();
@@ -27,9 +27,9 @@ function OnlineLobbyPageContent() {
   
   // Create Room state
   const gameParam = searchParams.get("game");
-  const [gameChoice, setGameChoice] = useState<"tictactoe" | "ludo">(() => {
-    return gameParam === "ludo" || gameParam === "tictactoe" ? gameParam : "tictactoe";
-  });
+  const [gameChoice, setGameChoice] = useState<"tictactoe" | "ludo" | "wordbattle">((() => {
+    return gameParam === "ludo" || gameParam === "tictactoe" || gameParam === "wordbattle" ? gameParam : "tictactoe";
+  }) as any);
   const [ludoMaxPlayers, setLudoMaxPlayers] = useState<number>(4);
   const [boardSize, setBoardSize] = useState<BoardSize>(3);
   const [seriesMode, setSeriesMode] = useState<SeriesMode>(3);
@@ -42,8 +42,8 @@ function OnlineLobbyPageContent() {
   const [prevGameParam, setPrevGameParam] = useState(gameParam);
   if (gameParam !== prevGameParam) {
     setPrevGameParam(gameParam);
-    if (gameParam === "ludo" || gameParam === "tictactoe") {
-      setGameChoice(gameParam);
+    if (gameParam === "ludo" || gameParam === "tictactoe" || gameParam === "wordbattle") {
+      setGameChoice(gameParam as any);
     }
   }
 
@@ -81,6 +81,11 @@ function OnlineLobbyPageContent() {
         setIsLoading(false);
         router.push(`/play/ludo/${roomId}`);
       });
+    } else if (gameChoice === "wordbattle") {
+      createRoom(nickname, "wordbattle", 2, 0, 0, (roomId: string) => {
+        setIsLoading(false);
+        router.push(`/play/wordbattle/${roomId}`);
+      });
     } else {
       createRoom(nickname, "tictactoe", 2, boardSize, seriesMode, (roomId: string) => {
         setIsLoading(false);
@@ -107,6 +112,8 @@ function OnlineLobbyPageContent() {
         setIsLoading(false);
         if (gameType === "ludo") {
           router.push(`/play/ludo/${roomId}`);
+        } else if (gameType === "wordbattle") {
+          router.push(`/play/wordbattle/${roomId}`);
         } else {
           router.push(`/play/online/${roomId}`);
         }
@@ -226,21 +233,21 @@ function OnlineLobbyPageContent() {
                 <Gamepad2 className="h-3.5 w-3.5" />
                 Select Game
               </span>
-              <div className="grid grid-cols-2 gap-2">
-                {(["tictactoe", "ludo"] as const).map((choice) => (
+              <div className="grid grid-cols-3 gap-2">
+                {(["tictactoe", "ludo", "wordbattle"] as const).map((choice) => (
                   <button
                     key={choice}
                     onClick={() => {
                       playClick();
                       setGameChoice(choice);
                     }}
-                    className={`h-11 sm:h-12 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm border transition-all ${
+                    className={`h-11 sm:h-12 rounded-lg sm:rounded-xl font-bold text-[10px] sm:text-xs border transition-all ${
                       gameChoice === choice
                         ? "bg-primary border-primary text-primary-foreground shadow-md"
                         : "bg-card/40 border-border/60 text-muted-foreground hover:bg-card/60"
                     }`}
                   >
-                    {choice === "tictactoe" ? "Tic-Tac-Toe" : "Online Ludo"}
+                    {choice === "tictactoe" ? "Tic-Tac-Toe" : choice === "ludo" ? "Online Ludo" : "Word Battle"}
                   </button>
                 ))}
               </div>
@@ -295,7 +302,7 @@ function OnlineLobbyPageContent() {
                   </div>
                 </div>
               </>
-            ) : (
+            ) : gameChoice === "ludo" ? (
               /* Ludo Player Limit Selector */
               <div className="space-y-2.5 animate-fadeIn">
                 <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
@@ -317,6 +324,12 @@ function OnlineLobbyPageContent() {
                     </button>
                   ))}
                 </div>
+              </div>
+            ) : (
+              /* Word Battle Selector Informational Banner */
+              <div className="p-3 bg-primary/10 border border-primary/20 text-primary rounded-xl text-xs font-semibold space-y-1 select-none animate-fadeIn">
+                <p>⚔️ Word Battle Arena Rules:</p>
+                <p className="text-muted-foreground font-normal">Players are given the exact same secret word. First player to solve it wins the round.</p>
               </div>
             )}
 

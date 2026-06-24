@@ -1,0 +1,5 @@
+export const SOCKET_CONSTANTS = {
+  RECONNECTION_ATTEMPTS: 5,
+  RECONNECTION_DELAY: 1000,
+  AUTO_CONNECT: true,
+} as const;

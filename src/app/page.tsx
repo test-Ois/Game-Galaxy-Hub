@@ -4,10 +4,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Trophy, Star, Gamepad2, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { GAMES_CONFIG, GameConfig } from "@/lib/game/config";
-import { GameCard } from "@/components/game/GameCard";
-import { GameDetailsModal } from "@/components/game/GameDetailsModal";
-import { Button } from "@/components/ui/button";
+import { GAMES_CONFIG, GameConfig } from "@/shared/config/gameConfig";
+import { GameCard, GameDetailsModal } from "@/features/multiplayer";
+import { Button } from "@/shared/components/ui/button";
 
 export default function HomePage() {
   const [selectedGame, setSelectedGame] = useState<GameConfig | null>(null);
