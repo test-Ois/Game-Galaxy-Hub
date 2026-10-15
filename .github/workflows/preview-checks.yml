@@ -1,0 +1,60 @@
+name: Preview checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Optional deployed preview URL to smoke-test in addition to local preview"
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  preview-smoke:
+    name: Build and smoke-test preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build production preview
+        run: npm run build
+      - name: Start preview and verify HTTP plus Socket.IO health
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          PORT=3000 npm run start > /tmp/game-galaxy-preview.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent http://127.0.0.1:3000/health >/tmp/ggh-health.json; then ready=1; break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then cat /tmp/game-galaxy-preview.log; exit 1; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/game-galaxy-preview.log; exit 1; fi
+          node -e "const h=require('/tmp/ggh-health.json'); if(h.status!=='ok') process.exit(1)"
+          curl --fail --silent --show-error http://127.0.0.1:3000/health-check
+          curl --fail --silent --show-error http://127.0.0.1:3000/ -o /dev/null
+          curl --fail --silent --show-error 'http://127.0.0.1:3000/socket.io/?EIO=4&transport=polling' | grep -q '"sid"'
+      - name: Smoke-test hosted preview URL (optional)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.preview_url != '' }}
+        env:
+          PREVIEW_URL: ${{ inputs.preview_url }}
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          base="${PREVIEW_URL%/}"
+          curl --fail --silent --show-error "$base/health" | grep -q '"status":"ok"'
+          curl --fail --silent --show-error "$base/health-check" | grep -q '"status":"running"'
+          curl --fail --silent --show-error "$base/" -o /dev/null
+          curl --fail --silent --show-error "$base/socket.io/?EIO=4&transport=polling" | grep -q '"sid"'

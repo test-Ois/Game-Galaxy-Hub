@@ -9,7 +9,9 @@
     "build": "next build",
     "start": "node server/src/app.js --production",
     "lint": "eslint",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "typecheck": "tsc --noEmit",
+    "test:server": "node --test server/src/services/*.test.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
