@@ -219,6 +219,6 @@ export function useWordBattleSocket() {
     rejoinRoom,
     isConnected: socket.connected,
     socket,
-    playerId: playerIdRef.current,
+    playerId: multiplayerPlayerId || "",
   };
 }

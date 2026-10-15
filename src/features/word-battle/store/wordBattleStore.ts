@@ -131,7 +131,7 @@ export const useWordBattleStore = create<WordBattleStore>()(
         const isLoss = !isWin && attemptsUsed >= 6;
 
         let nextStatus: WordGameStatus = "playing";
-        let updatedStats = { ...soloStats };
+        const updatedStats = { ...soloStats };
 
         if (isWin || isLoss) {
           nextStatus = isWin ? "victory" : "defeat";
@@ -218,7 +218,7 @@ export const useWordBattleStore = create<WordBattleStore>()(
         const isLoss = !isWin && newLives <= 0;
 
         let nextStatus: WordGameStatus = "playing";
-        let updatedStats = { ...hangmanStats };
+        const updatedStats = { ...hangmanStats };
 
         if (isWin || isLoss) {
           nextStatus = isWin ? "victory" : "defeat";

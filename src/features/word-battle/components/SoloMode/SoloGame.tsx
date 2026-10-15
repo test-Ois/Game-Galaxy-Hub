@@ -36,6 +36,8 @@ export function SoloGame() {
     if (guesses.length > 0) {
       const lastRow = guesses.length - 1;
       if (!revealedRows.has(lastRow)) {
+        // The effect starts a tile-flip animation after a new guess is committed.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsAnimating(true);
         const wordLen = secretWord.length;
         const totalDelay = wordLen * REVEAL_DELAY_PER_TILE + 500;

@@ -56,7 +56,7 @@ export function ConfettiEffect({ trigger }: ConfettiEffectProps) {
       alpha: 1,
     }));
 
-    let start = Date.now();
+    const start = Date.now();
     const DURATION = 3500;
 
     const animate = () => {
