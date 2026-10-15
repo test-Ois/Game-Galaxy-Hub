@@ -41,6 +41,8 @@ jobs:
           push: ${{ inputs.publish_image }}
           tags: |
             ghcr.io/test-ois/game-galaxy-hub:sha-${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_SOCKET_URL=${{ vars.NEXT_PUBLIC_SOCKET_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   deploy:
