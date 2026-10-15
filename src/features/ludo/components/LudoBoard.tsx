@@ -35,13 +35,12 @@ export function LudoBoard({ children }: LudoBoardProps) {
   (Object.keys(HOME_PATH_COORDS) as LudoColor[]).forEach((color) => {
     HOME_PATH_COORDS[color].forEach(({ r, c }) => homeLanes.set(keyOf(r, c), color));
   });
-  const starts = new Map<LudoColor, string>([
-    ["red", keyOf(6, 1)],
-    ["green", keyOf(1, 8)],
-    ["yellow", keyOf(8, 13)],
-    ["blue", keyOf(13, 6)],
+  const startCells = new Map<string, LudoColor>([
+    [keyOf(6, 1), "red"],
+    [keyOf(1, 8), "green"],
+    [keyOf(8, 13), "yellow"],
+    [keyOf(13, 6), "blue"],
   ]);
-  const startCells = new Map([...starts].map(([color, cell]) => [cell, color]));
   const safeCells = new Set(SAFE_CELLS.map((index) => keyOf(TRACK_COORDS[index].r, TRACK_COORDS[index].c)));
 
   return (
