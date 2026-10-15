@@ -34,27 +34,53 @@ function addChatMessage(room, senderId, senderName, content, type = "chat", syst
   return msg;
 }
 
+/**
+ * Remove a room and every timer/player index owned by it.
+ * Centralizing cleanup prevents stale playerRooms entries after room expiry.
+ */
+function cleanupRoom(roomId) {
+  const room = rooms.get(roomId);
+  if (room) {
+    for (const player of room.players || []) {
+      if (playerRooms.get(player.playerId) === roomId) {
+        playerRooms.delete(player.playerId);
+      }
+      const reconnectTimer = reconnectTimers.get(player.playerId);
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimers.delete(player.playerId);
+      }
+    }
+  }
+
+  const turnTimer = ludoTurnTimers.get(roomId);
+  if (turnTimer) {
+    clearTimeout(turnTimer);
+    ludoTurnTimers.delete(roomId);
+  }
+  rooms.delete(roomId);
+}
+
 function startSweeper() {
-  setInterval(() => {
-    const now = new Date();
+  const interval = setInterval(() => {
+    const now = Date.now();
     const maxAge = 2 * 60 * 60 * 1000; // 2 hours limit
+
     for (const [roomId, room] of rooms.entries()) {
-      const roomCreatedAt = room.createdAt ? new Date(room.createdAt) : now;
-      const roomAge = now - roomCreatedAt;
-      const hasConnectedPlayers = room.players.some((p) => p.isConnected);
-      if (roomAge > maxAge || !hasConnectedPlayers || room.players.length === 0) {
+      const createdAt = room.createdAt ? new Date(room.createdAt).getTime() : now;
+      const players = Array.isArray(room.players) ? room.players : [];
+      const hasConnectedPlayers = players.some((player) => player.isConnected);
+      if (now - createdAt > maxAge || !hasConnectedPlayers || players.length === 0) {
         console.log(`[Sweeper] Cleaning up inactive/orphaned room ${roomId}`);
-        rooms.delete(roomId);
-        if (ludoTurnTimers.has(roomId)) {
-          clearTimeout(ludoTurnTimers.get(roomId));
-          ludoTurnTimers.delete(roomId);
-        }
+        cleanupRoom(roomId);
       }
     }
   }, 10 * 60 * 1000);
+
+  // Do not keep Node's test runner or one-off scripts alive solely for cleanup.
+  if (typeof interval.unref === "function") interval.unref();
 }
 
-// Start the room sweeper on initialization
 startSweeper();
 
 module.exports = {
@@ -64,4 +90,5 @@ module.exports = {
   ludoTurnTimers,
   generateRoomId,
   addChatMessage,
+  cleanupRoom,
 };

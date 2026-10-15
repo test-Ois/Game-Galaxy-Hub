@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "node server/src/app.js --production",
     "lint": "eslint",
+    "test:server": "node --test server/src/services/*.test.js",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
@@ -37,7 +38,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
-    "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.4",
     "tailwindcss": "^4",
     "typescript": "^5"
