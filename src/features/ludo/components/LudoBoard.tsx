@@ -5,7 +5,6 @@ import { cn } from "@/shared/services/utils";
 import {
   BASE_SPOTS,
   COLOR_HEX,
-  GOAL_COORDS,
   HOME_PATH_COORDS,
   SAFE_CELLS,
   TRACK_COORDS,
@@ -144,7 +143,7 @@ export function LudoBoard({ children }: LudoBoardProps) {
       </div>
 
       {/* Token layer is intentionally last so tokens remain clickable above all board art. */}
-      <div className="pointer-events-none absolute inset-0 z-[10]">
+      <div className="absolute inset-0 z-[10]">
         {children}
       </div>
     </div>
