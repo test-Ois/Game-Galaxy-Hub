@@ -63,7 +63,7 @@ export function MultiplayerGame({ playerId, playerName }: MultiplayerGameProps) 
     syncedRef.current = true;
   }, [room, playerId]);
 
-  const wordLength = (room?.secretWord?.length) || 5;
+  const wordLength = room?.wordLength || room?.secretWord?.length || 5;
   // Server strips secretWord from broadcast — use placeholder for board rendering
   // The actual word is revealed only on room result. Use the player's own guesses for the board.
   const secretWord = room?.secretWord || "?????";
