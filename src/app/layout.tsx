@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { Navbar } from "@/shared/components/layout/Navbar";
@@ -60,6 +61,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <MotionConfig reducedMotion="user">
           <TooltipProvider>
             <div className="relative min-h-screen flex flex-col overflow-x-hidden">
               {/* Background decorations — responsive sizing */}
@@ -87,6 +89,7 @@ export default function RootLayout({
               }}
             />
           </TooltipProvider>
+          </MotionConfig>
         </ThemeProvider>
       </body>
     </html>
