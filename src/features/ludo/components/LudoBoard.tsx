@@ -24,7 +24,8 @@ const BOARD_CELLS = Array.from({ length: 225 }, (_, index) => {
   const inYellowBase = r >= 9 && c >= 9;
   const inBlueBase = r >= 9 && c <= 5;
   const baseColor = inRedBase ? "red" : inGreenBase ? "green" : inYellowBase ? "yellow" : inBlueBase ? "blue" : null;
-  const isBaseSpot = Object.values(BASE_SPOTS).flat().some((cell) => cell.r === r && cell.c === c);\n  const inHomeSquare = (r >= 1 && r <= 4 && c >= 1 && c <= 4) || (r >= 1 && r <= 4 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 1 && c <= 4);
+  const isBaseSpot = Object.values(BASE_SPOTS).flat().some((cell) => cell.r === r && cell.c === c);
+  const inHomeSquare = (r >= 1 && r <= 4 && c >= 1 && c <= 4) || (r >= 1 && r <= 4 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 1 && c <= 4);
   const isSafeCell = SAFE_CELLS.some((trackIndex) => TRACK_COORDS[trackIndex]?.r === r && TRACK_COORDS[trackIndex]?.c === c);
   let cellColor = "bg-white";
   if (baseColor === "red") cellColor = "bg-[#f11f2c]";
