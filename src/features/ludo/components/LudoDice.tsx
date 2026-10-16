@@ -45,8 +45,8 @@ export function LudoDice({
   };
 
   const activeDots = diceVal !== null ? dotsMap[diceVal] || [] : [];
-  const diceSizeClass = isCompact ? "h-9 w-9 border" : "h-15 w-15 rounded-2xl border-2";
-  const gapClass = isCompact ? "gap-0.5 w-5 h-5 p-0" : "grid-cols-3 grid-rows-3 gap-1.5 w-8 h-8 p-0.5";
+  const diceSizeClass = isCompact ? "h-10 w-10 border" : "h-[4.5rem] w-[4.5rem] sm:h-20 sm:w-20 rounded-[1.2rem] border-2";
+  const gapClass = isCompact ? "gap-0.5 w-6 h-6 p-0" : "grid-cols-3 grid-rows-3 gap-2 w-10 h-10 sm:w-12 sm:h-12 p-1";
 
   return (
     <div style={{ perspective: "1000px" }} className="flex items-center justify-center shrink-0">
@@ -83,13 +83,13 @@ export function LudoDice({
             : {}
         }
         style={{
-          borderBottomWidth: isCompact ? "2px" : "4px",
+          borderBottomWidth: isCompact ? "3px" : "6px",
           borderBottomColor: activeHex,
           filter: isRolling ? "blur(1.2px)" : "none",
           transformStyle: "preserve-3d",
         }}
         className={cn(
-          "rounded-xl bg-white border-slate-300 flex items-center justify-center shadow-lg select-none transition-all",
+          "rounded-xl bg-gradient-to-br from-white via-slate-50 to-slate-200 border-white/90 flex items-center justify-center shadow-[inset_0_2px_3px_rgba(255,255,255,0.95),inset_0_-5px_7px_rgba(15,23,42,0.12),0_8px_18px_rgba(0,0,0,0.38)] select-none transition-all ring-1 ring-black/10",
           isMyTurn && !hasRolled && !isRolling && !isAnimating
             ? "cursor-pointer border-primary animate-bounce animate-duration-1000"
             : "text-foreground cursor-default",
@@ -110,8 +110,8 @@ export function LudoDice({
                   activeDots.includes(i) ? "opacity-100 scale-100" : "opacity-0 scale-50"
                 )}
                 style={{
-                  width: isCompact ? "4px" : "6px",
-                  height: isCompact ? "4px" : "6px",
+                  width: isCompact ? "4px" : "8px",
+                  height: isCompact ? "4px" : "8px",
                 }}
               />
             ))}

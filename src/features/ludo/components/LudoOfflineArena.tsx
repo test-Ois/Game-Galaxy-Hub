@@ -347,11 +347,19 @@ export function LudoOfflineArena() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
-            className="w-full max-w-5xl flex flex-col lg:flex-row gap-6 items-center justify-center"
+            className="w-full max-w-6xl flex flex-col gap-4 sm:gap-5 items-center justify-center"
           >
+            {/* Premium Ludo Board */}
+            <LudoBoard>
+              <LudoTokens
+                coordinatesGroups={coordinatesGroups}
+                onTokenClick={handleTokenClick}
+              />
+            </LudoBoard>
+
             {/* Control Panel */}
-            <div className="w-full lg:w-[320px] flex flex-col gap-4">
-              <div className="glass rounded-3xl p-5 border border-white/10 flex flex-col gap-4 shadow-xl">
+            <div className="w-full max-w-[min(96vw,760px)] flex flex-col gap-3 order-2">
+              <div className="glass rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-white/10 flex flex-col gap-3 sm:gap-4 shadow-xl">
                 
                 {/* Header Actions */}
                 <div className="flex items-center justify-between pb-3 border-b border-white/5">
@@ -453,13 +461,6 @@ export function LudoOfflineArena() {
               </div>
             </div>
 
-            {/* Premium Ludo Board */}
-            <LudoBoard>
-              <LudoTokens
-                coordinatesGroups={coordinatesGroups}
-                onTokenClick={handleTokenClick}
-              />
-            </LudoBoard>
           </motion.div>
         )}
       </AnimatePresence>
