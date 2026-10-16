@@ -32,6 +32,7 @@ export function LudoOfflineArena() {
   // Configuration Setup State
   const [playerCount, setPlayerCount] = useState<2 | 3 | 4 | null>(null);
   const [isLobbyMode, setIsLobbyMode] = useState(true);
+  const [isAiMode, setIsAiMode] = useState(false);
 
   // Gameplay State
   const [activeColors, setActiveColors] = useState<LudoColor[]>([]);
@@ -77,6 +78,7 @@ export function LudoOfflineArena() {
     setPlayerCount(count);
     setActiveColors(colors);
     setIsLobbyMode(false);
+    setIsAiMode(false);
     setCurrentPlayerIdx(0);
     setDiceRoll(null);
     setHasRolled(false);
@@ -94,6 +96,21 @@ export function LudoOfflineArena() {
     });
     setRankings([]);
     setGameMessage("Red starts the game! Roll the dice.");
+  };
+
+  const startAiGame = () => {
+    playClick();
+    setPlayerCount(2);
+    setActiveColors(["blue", "red"] as LudoColor[]);
+    setIsLobbyMode(false);
+    setIsAiMode(true);
+    setCurrentPlayerIdx(0);
+    setDiceRoll(null);
+    setHasRolled(false);
+    setTokens({ red: [-1, -1, -1, -1], green: [-1, -1, -1, -1], yellow: [-1, -1, -1, -1], blue: [-1, -1, -1, -1] });
+    setAnimatedTokens({ red: [-1, -1, -1, -1], green: [-1, -1, -1, -1], yellow: [-1, -1, -1, -1], blue: [-1, -1, -1, -1] });
+    setRankings([]);
+    setGameMessage("Your turn! Roll the dice.");
   };
 
   // Roll Dice
