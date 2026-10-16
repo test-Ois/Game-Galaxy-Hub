@@ -340,4 +340,4 @@ function registerWordBattleHandlers(io, socket) {
   });
 }
 
-module.exports = { registerWordBattleHandlers };
+module.exports = { registerWordBattleHandlers, toPublicRoom };
