@@ -412,7 +412,7 @@ export function LudoOfflineArena() {
               <div className="glass rounded-2xl p-2.5 sm:p-3 border border-white/10 flex flex-col gap-2 shadow-xl">
                 
                 {/* Header Actions */}
-                <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
+                <div className="grid grid-cols-2 items-center gap-2 pb-2 border-b border-white/5">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -422,7 +422,7 @@ export function LudoOfflineArena() {
                         setIsLobbyMode(true);
                       }
                     }}
-                    className="h-7 rounded-lg text-[11px] hover:bg-destructive/10 hover:text-destructive text-muted-foreground gap-1.5"
+                    className="h-9 w-full rounded-xl justify-center text-xs hover:bg-destructive/10 hover:text-destructive text-muted-foreground gap-2 border border-white/5"
                   >
                     <LogOut className="h-4 w-4" />
                     Quit
@@ -437,7 +437,7 @@ export function LudoOfflineArena() {
                         startOfflineGame(playerCount || 4);
                       }
                     }}
-                    className="h-7 rounded-lg text-[11px] hover:bg-primary/10 text-muted-foreground gap-1.5"
+                    className="h-9 w-full rounded-xl justify-center text-xs hover:bg-primary/10 text-muted-foreground gap-2 border border-white/5"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Restart
@@ -445,7 +445,7 @@ export function LudoOfflineArena() {
                 </div>
 
                 {/* Turn Spotlight Indicator */}
-                <div className="flex flex-row items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5">
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/5">
                   <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Active Turn</span>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
@@ -473,7 +473,7 @@ export function LudoOfflineArena() {
                 </div>
 
                 {/* Shaking Dice Roller */}
-                <div className="flex items-center justify-center gap-3 py-2 bg-neutral-900/40 rounded-xl border border-white/5 relative overflow-hidden">
+                <div className="flex items-center justify-center gap-4 py-3 bg-neutral-900/40 rounded-xl border border-white/5 relative overflow-visible px-3">
                   <LudoDice
                     activeColor={activeColor}
                     diceRoll={diceRoll}
