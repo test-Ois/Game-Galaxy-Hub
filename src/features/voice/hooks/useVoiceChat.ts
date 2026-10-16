@@ -215,10 +215,12 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
 
       audio.srcObject = stream;
       audio.muted = !voiceSpeakerEnabled;
-      audio.play().catch((e) => {
-        console.warn("[Voice] Auto play failed, user interaction needed:", e);
+      // Playback can be blocked until a user gesture. The speaker button retries
+      // playback below, but also try immediately when a remote track arrives.
+      void audio.play().catch((e) => {
+        console.warn("[Voice] Remote playback is waiting for a user gesture:", e);
       });
-      
+
       startRemoteAudioAnalysis(peerId, stream);
     } catch (e) {
       console.error(`[Voice] Error playing remote stream for ${peerId}:`, e);
@@ -429,11 +431,30 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
     }
   }, [initLocalStream, createPeerConnection, startLocalAudioAnalysis, flushCandidates, roomId, socket]);
 
-  // Toggle local mic
-  const toggleMic = useCallback(() => {
-    const nextState = !voiceMicEnabled;
-    useSettingsStore.getState().setVoiceMicEnabled(nextState);
-  }, [voiceMicEnabled]);
+  // Acquire permission directly from the user's mic-button gesture. Browsers can
+  // reject getUserMedia when it is first requested by an automatic room effect.
+  const toggleMic = useCallback(async () => {
+    if (voiceMicEnabled) {
+      useSettingsStore.getState().setVoiceMicEnabled(false);
+      return;
+    }
+
+    const stream = await initLocalStream();
+    if (!stream) return;
+
+    stream.getAudioTracks().forEach((track) => { track.enabled = true; });
+    setPermissionDenied(false);
+    useSettingsStore.getState().setVoiceMicEnabled(true);
+    startLocalAudioAnalysis(stream);
+
+    // A permission prompt may have caused the initial offer attempt to fail.
+    // Retry the designated offerer now that the local stream is ready.
+    players.forEach((peer) => {
+      if (peer.playerId !== playerId && peer.isConnected && playerId < peer.playerId) {
+        void initiateCall(peer.playerId);
+      }
+    });
+  }, [voiceMicEnabled, initLocalStream, startLocalAudioAnalysis, players, playerId, initiateCall]);
 
   // Sync mic toggle to tracks & broadcast state
   useEffect(() => {
@@ -452,11 +473,19 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
     }
   }, [voiceMicEnabled, isSelfSpeaking, roomId, socket]);
 
-  // Sync speaker toggle to HTMLAudioElements
+  // Sync speaker toggle and retry playback after the user's speaker gesture.
   useEffect(() => {
     remoteAudiosRef.current.forEach((audio) => {
       audio.muted = !voiceSpeakerEnabled;
+      if (voiceSpeakerEnabled && audio.srcObject) {
+        void audio.play().catch((e) => {
+          console.warn("[Voice] Playback is still blocked by browser policy:", e);
+        });
+      }
     });
+    if (voiceSpeakerEnabled && audioCtxRef.current?.state === "suspended") {
+      void audioCtxRef.current.resume().catch(() => {});
+    }
   }, [voiceSpeakerEnabled]);
 
   // Establish mesh connections as players join/rejoin/disconnect
