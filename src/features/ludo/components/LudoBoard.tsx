@@ -24,14 +24,14 @@ const BOARD_CELLS = Array.from({ length: 225 }, (_, index) => {
   const inYellowBase = r >= 9 && c >= 9;
   const inBlueBase = r >= 9 && c <= 5;
   const baseColor = inRedBase ? "red" : inGreenBase ? "green" : inYellowBase ? "yellow" : inBlueBase ? "blue" : null;
-  const isBaseSpot = Object.values(BASE_SPOTS).flat().some((cell) => cell.r === r && cell.c === c);
+  const isBaseSpot = Object.values(BASE_SPOTS).flat().some((cell) => cell.r === r && cell.c === c);\n  const inHomeSquare = (r >= 1 && r <= 4 && c >= 1 && c <= 4) || (r >= 1 && r <= 4 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 10 && c <= 13) || (r >= 10 && r <= 13 && c >= 1 && c <= 4);
   const isSafeCell = SAFE_CELLS.some((trackIndex) => TRACK_COORDS[trackIndex]?.r === r && TRACK_COORDS[trackIndex]?.c === c);
   let cellColor = "bg-white";
   if (baseColor === "red") cellColor = "bg-[#f11f2c]";
   if (baseColor === "green") cellColor = "bg-[#079b50]";
   if (baseColor === "yellow") cellColor = "bg-[#ffe51b]";
   if (baseColor === "blue") cellColor = "bg-[#20a9ed]";
-  if (isTrack) cellColor = "bg-white";
+  if (isTrack) cellColor = "bg-white";\n  if (inHomeSquare) cellColor = "bg-white";
   if (isHomeLane) {
     if (r === 7 && c >= 1 && c <= 5) cellColor = "bg-[#ed1c2a]";
     else if (c === 7 && r >= 1 && r <= 5) cellColor = "bg-[#079b50]";
