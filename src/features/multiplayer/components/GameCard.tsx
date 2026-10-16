@@ -18,7 +18,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
     <motion.div
       whileHover={isComingSoon ? {} : { y: -6, scale: 1.02 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`relative overflow-hidden glass rounded-3xl p-6 flex flex-col justify-between h-[320px] sm:h-[350px] border border-white/10 group shadow-xl transition-all duration-300 ${
+      className={`relative overflow-hidden glass rounded-2xl sm:rounded-3xl p-4 min-[390px]:p-6 flex flex-col justify-between min-h-[300px] sm:min-h-[350px] border border-white/10 group shadow-xl transition-all duration-300 ${
         isComingSoon
           ? "opacity-60 cursor-not-allowed"
           : "cursor-pointer hover:shadow-2xl hover:border-white/20"
@@ -26,7 +26,7 @@ export function GameCard({ game, onClick }: GameCardProps) {
       onClick={() => !isComingSoon && onClick(game)}
     >
       {/* Decorative Background Gradient Blur */}
-      <div className={`absolute top-0 right-0 w-48 h-48 rounded-full bg-gradient-to-br ${game.gradient} opacity-20 blur-3xl -mr-16 -mt-16 group-hover:opacity-35 transition-opacity duration-300`} />
+      <div className={`mobile-heavy-decoration absolute top-0 right-0 w-48 h-48 rounded-full bg-gradient-to-br ${game.gradient} opacity-20 blur-3xl -mr-16 -mt-16 group-hover:opacity-35 transition-opacity duration-300`} />
 
       <div>
         {/* Game Icon/Badge Decoration */}
