@@ -35,8 +35,8 @@ function NavbarContent() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Hide general site navigation navbar inside online gameplay rooms
-  const isRoomPage = pathname.includes("/play/online/") || pathname.includes("/play/ludo/");
+  // Keep all gameplay modes immersive: no site navigation over a live game.
+  const isRoomPage = pathname.startsWith("/play/");
   if (isRoomPage) return null;
 
   return (
