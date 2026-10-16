@@ -32,7 +32,8 @@ const BOARD_CELLS = Array.from({ length: 225 }, (_, index) => {
   if (baseColor === "green") cellColor = "bg-[#079b50]";
   if (baseColor === "yellow") cellColor = "bg-[#ffe51b]";
   if (baseColor === "blue") cellColor = "bg-[#20a9ed]";
-  if (isTrack) cellColor = "bg-white";\n  if (inHomeSquare) cellColor = "bg-white";
+  if (isTrack) cellColor = "bg-white";
+  if (inHomeSquare) cellColor = "bg-white";
   if (isHomeLane) {
     if (r === 7 && c >= 1 && c <= 5) cellColor = "bg-[#ed1c2a]";
     else if (c === 7 && r >= 1 && r <= 5) cellColor = "bg-[#079b50]";
