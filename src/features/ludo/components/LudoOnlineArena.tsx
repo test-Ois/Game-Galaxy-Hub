@@ -596,7 +596,7 @@ export function LudoOnlineArena({
                 )}
               </div>
 
-              <div className="flex items-center justify-center gap-4 py-4 bg-neutral-900/40 rounded-2xl border border-white/5 relative overflow-hidden">
+              <div className="flex items-center justify-center gap-4 py-3 px-3 bg-neutral-900/40 rounded-xl border border-white/5 relative overflow-visible">
                 <LudoDice
                   activeColor={onlineRoom.currentPlayer as LudoColor}
                   diceRoll={ludoState.diceRoll}
