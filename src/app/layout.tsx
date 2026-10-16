@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { Navbar } from "@/shared/components/layout/Navbar";
 import { Footer } from "@/shared/components/layout/Footer";
+import { AppMain } from "@/shared/components/layout/AppMain";
 import { PWAInstallPrompt } from "@/shared/components/layout/PWAInstallPrompt";
 import "@/styles/globals.css";
 
@@ -67,9 +68,7 @@ export default function RootLayout({
               <div className="orb orb-accent fixed w-[clamp(160px,40vw,400px)] h-[clamp(160px,40vw,400px)] -bottom-16 sm:-bottom-32 -left-16 sm:-left-32 opacity-50" />
 
               <Navbar />
-              <main className="flex-1 relative z-10 pt-16 sm:pt-18 md:pt-20">
-                {children}
-              </main>
+              <AppMain>{children}</AppMain>
               <Footer />
               <PWAInstallPrompt />
             </div>
