@@ -80,3 +80,52 @@ test("Socket.IO multiplayer supports Ludo create, join, ready, start, and dice r
     await new Promise((resolve) => ioServer.close(resolve));
   }
 });
+
+
+test("WebRTC voice signaling and mic state relay in both directions", async () => {
+  const httpServer = createServer();
+  const ioServer = new Server(httpServer, { cors: { origin: "*" } });
+  registerSocketHandlers(ioServer);
+  await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
+  const url = "http://127.0.0.1:" + httpServer.address().port;
+  let host, guest, roomId;
+  try {
+    [host, guest] = await Promise.all([connectClient(url), connectClient(url)]);
+    const createdPromise = waitForEvent(host, "roomCreated");
+    host.emit("createRoom", { name: "Voice Host", gameType: "tictactoe", maxPlayers: 2, playerId: "ci-voice-host" });
+    const created = await createdPromise;
+    roomId = created.roomId;
+
+    const guestJoinPromise = waitForEvent(guest, "roomJoined");
+    host.once("roomUpdated", () => {});
+    guest.emit("joinRoom", { name: "Voice Guest", roomId, playerId: "ci-voice-guest" });
+    await guestJoinPromise;
+
+    const hostOffer = { type: "offer", offer: { type: "offer", sdp: "test-offer-sdp" } };
+    const guestOfferPromise = waitForEvent(guest, "voiceSignal");
+    host.emit("voiceSignal", { roomId, targetPlayerId: "ci-voice-guest", signal: hostOffer });
+    const receivedAtGuest = await guestOfferPromise;
+    assert.equal(receivedAtGuest.senderPlayerId, "ci-voice-host");
+    assert.deepEqual(receivedAtGuest.signal, hostOffer);
+
+    const guestAnswer = { type: "answer", answer: { type: "answer", sdp: "test-answer-sdp" } };
+    const hostAnswerPromise = waitForEvent(host, "voiceSignal");
+    guest.emit("voiceSignal", { roomId, targetPlayerId: "ci-voice-host", signal: guestAnswer });
+    const receivedAtHost = await hostAnswerPromise;
+    assert.equal(receivedAtHost.senderPlayerId, "ci-voice-guest");
+    assert.deepEqual(receivedAtHost.signal, guestAnswer);
+
+    const hostStatePromise = waitForEvent(host, "voiceStateUpdate");
+    guest.emit("voiceStateUpdate", { roomId, micActive: true, speaking: true });
+    assert.deepEqual(await hostStatePromise, { playerId: "ci-voice-guest", micActive: true, speaking: true });
+
+    const guestStatePromise = waitForEvent(guest, "voiceStateUpdate");
+    host.emit("voiceStateUpdate", { roomId, micActive: false, speaking: false });
+    assert.deepEqual(await guestStatePromise, { playerId: "ci-voice-host", micActive: false, speaking: false });
+  } finally {
+    if (host) host.disconnect();
+    if (guest) guest.disconnect();
+    if (roomId) cleanupRoom(roomId);
+    await new Promise((resolve) => ioServer.close(resolve));
+  }
+});
