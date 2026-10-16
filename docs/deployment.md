@@ -31,3 +31,14 @@ docker compose down
 ~~~
 
 The container exposes port 3000 and reports health through /health.
+
+
+## WebRTC voice connectivity
+
+Voice chat uses public STUN servers by default. Some mobile carriers, corporate Wi-Fi, and strict NATs require a TURN relay; configure a trusted TURN provider in the frontend deployment environment when voice status remains `failed` or `disconnected`:
+
+- `NEXT_PUBLIC_TURN_URL` — TURN URL, for example `turn:turn.example.com:3478` or `turns:turn.example.com:5349`
+- `NEXT_PUBLIC_TURN_USERNAME` — TURN username
+- `NEXT_PUBLIC_TURN_CREDENTIAL` — TURN credential
+
+These are browser-visible values because WebRTC clients need them, so use short-lived/provider-issued credentials where possible. Do not commit credentials to the repository. After setting them, redeploy the preview environment and test voice with two separate devices/networks. A successful Socket.IO connection alone does not prove that WebRTC audio can pass through the network.
