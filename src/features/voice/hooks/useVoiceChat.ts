@@ -444,26 +444,30 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
   // Acquire permission directly from the user's mic-button gesture. Browsers can
   // reject getUserMedia when it is first requested by an automatic room effect.
   const toggleMic = useCallback(async () => {
-    if (voiceMicEnabled) {
-      useSettingsStore.getState().setVoiceMicEnabled(false);
+    // A persisted "mic on" preference is not proof that a real media track
+    // exists. If the first automatic permission request failed, the next tap
+    // must retry getUserMedia rather than merely toggling the preference off.
+    if (!localStreamRef.current) {
+      const stream = await initLocalStream();
+      if (!stream) return;
+      stream.getAudioTracks().forEach((track) => { track.enabled = true; });
+      setPermissionDenied(false);
+      useSettingsStore.getState().setVoiceMicEnabled(true);
+      startLocalAudioAnalysis(stream);
+
+      // A permission prompt may have caused the initial offer attempt to fail.
+      // Retry the designated offerer now that the local stream is ready.
+      players.forEach((peer) => {
+        if (peer.playerId !== playerId && peer.isConnected && playerId < peer.playerId) {
+          void initiateCall(peer.playerId);
+        }
+      });
       return;
     }
 
-    const stream = await initLocalStream();
-    if (!stream) return;
-
-    stream.getAudioTracks().forEach((track) => { track.enabled = true; });
-    setPermissionDenied(false);
-    useSettingsStore.getState().setVoiceMicEnabled(true);
-    startLocalAudioAnalysis(stream);
-
-    // A permission prompt may have caused the initial offer attempt to fail.
-    // Retry the designated offerer now that the local stream is ready.
-    players.forEach((peer) => {
-      if (peer.playerId !== playerId && peer.isConnected && playerId < peer.playerId) {
-        void initiateCall(peer.playerId);
-      }
-    });
+    const nextState = !voiceMicEnabled;
+    localStreamRef.current.getAudioTracks().forEach((track) => { track.enabled = nextState; });
+    useSettingsStore.getState().setVoiceMicEnabled(nextState);
   }, [voiceMicEnabled, initLocalStream, startLocalAudioAnalysis, players, playerId, initiateCall]);
 
   // Sync mic toggle to tracks & broadcast state
