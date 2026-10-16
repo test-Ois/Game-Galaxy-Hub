@@ -32,10 +32,10 @@ const BOARD_CELLS: BoardCell[] = Array.from({ length: 225 }, (_, index) => {
       TRACK_COORDS[trackIndex].c === cIdx
   );
 
-  if (rIdx < 6 && cIdx < 6) cellColor = "bg-red-950/20";
-  else if (rIdx < 6 && cIdx > 8) cellColor = "bg-emerald-950/20";
-  else if (rIdx > 8 && cIdx > 8) cellColor = "bg-amber-950/20";
-  else if (rIdx > 8 && cIdx < 6) cellColor = "bg-blue-950/20";
+  if (rIdx < 6 && cIdx < 6) cellColor = "bg-gradient-to-br from-rose-950/80 via-red-950/65 to-rose-900/50";
+  else if (rIdx < 6 && cIdx > 8) cellColor = "bg-gradient-to-br from-emerald-950/80 via-green-950/65 to-emerald-900/50";
+  else if (rIdx > 8 && cIdx > 8) cellColor = "bg-gradient-to-br from-amber-950/80 via-orange-950/65 to-amber-900/50";
+  else if (rIdx > 8 && cIdx < 6) cellColor = "bg-gradient-to-br from-blue-950/80 via-sky-950/65 to-blue-900/50";
 
   if (rIdx === 7 && cIdx >= 1 && cIdx <= 5) cellColor = "bg-gradient-to-r from-red-600/60 to-red-500/95";
   else if (cIdx === 7 && rIdx >= 1 && rIdx <= 5) cellColor = "bg-gradient-to-b from-emerald-600/60 to-emerald-500/95";
@@ -67,13 +67,13 @@ const BOARD_CELLS: BoardCell[] = Array.from({ length: 225 }, (_, index) => {
 
 export function LudoBoard({ children }: LudoBoardProps) {
   return (
-    <div className="relative aspect-square w-full max-w-[92vw] sm:max-w-md md:max-w-lg border-4 sm:border-8 border-amber-600/40 rounded-2xl sm:rounded-3xl p-1 bg-neutral-900 shadow-2xl overflow-hidden">
-      <div className="grid grid-cols-15 grid-rows-15 w-full h-full gap-px bg-neutral-800 rounded-xl sm:rounded-2xl overflow-hidden">
+    <div className="relative aspect-square w-[min(96vw,760px)] sm:w-[min(88vw,760px)] shrink-0 border-[5px] sm:border-[9px] border-amber-700/80 rounded-[1.35rem] sm:rounded-[2rem] p-1 sm:p-1.5 bg-gradient-to-br from-amber-300 via-amber-800 to-yellow-950 shadow-[0_12px_36px_rgba(0,0,0,0.55),inset_0_2px_4px_rgba(255,255,255,0.25)] overflow-hidden">
+      <div className="grid grid-cols-15 grid-rows-15 w-full h-full gap-px bg-stone-950 rounded-[0.9rem] sm:rounded-[1.4rem] overflow-hidden shadow-inner">
         {BOARD_CELLS.map(({ key, className, isSafeCell, isBaseSpot }) => (
           <div
             key={key}
             className={cn(
-              "relative rounded-[2px] flex items-center justify-center border border-neutral-800/40 text-[8px]",
+              "relative rounded-[2px] flex items-center justify-center border border-black/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)] text-[8px]",
               className
             )}
           >
