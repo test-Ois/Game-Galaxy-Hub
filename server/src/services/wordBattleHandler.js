@@ -49,6 +49,22 @@ function generateWordRoomId() {
   return id;
 }
 
+
+// Never broadcast the internal room object: it contains the answer while a
+// round is active. Keep the answer server-side until the match is finished.
+function toPublicRoom(room) {
+  const { secretWord, ...publicRoom } = room;
+  return {
+    ...publicRoom,
+    wordLength: secretWord ? secretWord.length : 0,
+    ...(room.status === "finished" ? { secretWord } : {}),
+  };
+}
+
+function emitRoomUpdate(io, room) {
+  io.to(room.roomId).emit("word:room-updated", toPublicRoom(room));
+}
+
 function registerWordBattleHandlers(io, socket) {
   // ── Create Room ──────────────────────────────────────────────
   socket.on("word:create-room", ({ name, playerId, difficulty = "medium" }) => {
@@ -88,7 +104,7 @@ function registerWordBattleHandlers(io, socket) {
     playerRooms.set(playerId, roomId);
     socket.join(roomId);
 
-    io.to(roomId).emit("word:room-updated", room);
+    emitRoomUpdate(io, room);
     console.log(`[WORD BATTLE] Room created: ${roomId} by ${name} (${playerId})`);
   });
 
@@ -116,7 +132,7 @@ function registerWordBattleHandlers(io, socket) {
       }
       playerRooms.set(playerId, cleanRoomId);
       socket.join(cleanRoomId);
-      io.to(cleanRoomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
       console.log(`[WORD BATTLE] Player reconnected: ${name} (${playerId}) to ${cleanRoomId}`);
       return;
     }
@@ -159,10 +175,10 @@ function registerWordBattleHandlers(io, socket) {
         };
       });
 
-      io.to(cleanRoomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
       console.log(`[WORD BATTLE] Game started in Room: ${cleanRoomId} | Word: ${word}`);
     } else {
-      io.to(cleanRoomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
     }
 
     console.log(`[WORD BATTLE] ${name} (${playerId}) joined Room: ${cleanRoomId}`);
@@ -185,7 +201,7 @@ function registerWordBattleHandlers(io, socket) {
       }
       playerRooms.set(playerId, cleanRoomId);
       socket.join(cleanRoomId);
-      io.to(cleanRoomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
       console.log(`[WORD BATTLE] Rejoined: ${playerId} => ${cleanRoomId}`);
     }
   });
@@ -207,7 +223,7 @@ function registerWordBattleHandlers(io, socket) {
 
     if (isCorrect) {
       playerProgress.solved = true;
-      io.to(roomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
 
       // Check if all other players are done
       const allDone = room.players.every((p) => {
@@ -225,7 +241,7 @@ function registerWordBattleHandlers(io, socket) {
           }
         });
         room.status = "finished";
-        io.to(roomId).emit("word:room-updated", room);
+        emitRoomUpdate(io, room);
         console.log(`[WORD BATTLE] Winner: ${playerId} in Room ${roomId}`);
       }
     } else if (isExhausted) {
@@ -240,13 +256,13 @@ function registerWordBattleHandlers(io, socket) {
       if (allFailed && !room.winnerId) {
         room.draw = true;
         room.status = "finished";
-        io.to(roomId).emit("word:room-updated", room);
+        emitRoomUpdate(io, room);
         console.log(`[WORD BATTLE] Draw in Room ${roomId} | Word: ${room.secretWord}`);
       } else {
-        io.to(roomId).emit("word:room-updated", room);
+        emitRoomUpdate(io, room);
       }
     } else {
-      io.to(roomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
     }
   });
 
@@ -258,7 +274,7 @@ function registerWordBattleHandlers(io, socket) {
       room.playerProgress[playerId].attemptsUsed = attemptsUsed;
     }
     // Broadcast progress to opponents only (not the sender)
-    socket.to(roomId).emit("word:room-updated", room);
+    socket.to(roomId).emit("word:room-updated", toPublicRoom(room));
   });
 
   // ── Play Again ───────────────────────────────────────────────
@@ -270,7 +286,7 @@ function registerWordBattleHandlers(io, socket) {
       room.rematchRequests.push(playerId);
     }
 
-    io.to(roomId).emit("word:room-updated", room);
+    emitRoomUpdate(io, room);
 
     if (room.rematchRequests.length >= room.players.length && room.players.length >= 2) {
       // Reset for new round
@@ -290,7 +306,7 @@ function registerWordBattleHandlers(io, socket) {
         };
       });
 
-      io.to(roomId).emit("word:room-updated", room);
+      emitRoomUpdate(io, room);
       console.log(`[WORD BATTLE] Rematch started in Room: ${roomId} | Word: ${word}`);
     }
   });
@@ -317,7 +333,7 @@ function registerWordBattleHandlers(io, socket) {
         room.winnerId = remaining.playerId;
         room.status = "finished";
       }
-      socket.to(cleanRoomId).emit("word:room-updated", room);
+      socket.to(cleanRoomId).emit("word:room-updated", toPublicRoom(room));
       socket.to(cleanRoomId).emit("word:opponent-left", { playerId });
       console.log(`[WORD BATTLE] ${leavingPlayer?.name || playerId} left Room ${cleanRoomId}.`);
     }
