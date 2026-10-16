@@ -302,6 +302,35 @@ export function LudoOfflineArena() {
     }, 800);
   };
 
+  // Computer opponent automatically rolls and chooses a legal token.
+  useEffect(() => {
+    if (!isAiMode || activeColor !== "red" || isAnimating || isRollingAnimation || rankings.length >= activeColors.length - 1) return;
+    if (!hasRolled) {
+      const timer = setTimeout(() => {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        const moves = getValidMovesForColor("red", roll);
+        playDiceRoll();
+        setDiceRoll(roll);
+        setHasRolled(true);
+        setGameMessage("Computer rolled. Choosing a move…");
+        if (moves.length === 0) {
+          setGameMessage("Computer has no valid move. Your turn next.");
+          setTimeout(() => advanceTurn(false), 900);
+        }
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+    if (diceRoll !== null) {
+      const moves = getValidMovesForColor("red", diceRoll);
+      if (moves.length > 0) {
+        const timer = setTimeout(() => handleTokenClick("red", moves[0]), 650);
+        return () => clearTimeout(timer);
+      }
+    }
+  // AI turn state is intentionally the trigger; handlers read the latest render values.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAiMode, activeColor, hasRolled, diceRoll, isAnimating, isRollingAnimation, rankings.length]);
+
   // Build coordinate clusters to overlay tokens correctly
   const coordinatesGroups: Record<string, Array<{ color: LudoColor; index: number; validMove: boolean }>> = {};
   activeColors.forEach((color) => {
