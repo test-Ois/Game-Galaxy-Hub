@@ -8,11 +8,21 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { Socket } from "socket.io-client";
 import { useSettingsStore } from "@/features/settings";
 
+// STUN works for many networks, but restrictive NATs/firewalls require TURN.
+// Configure these NEXT_PUBLIC_* values with a real TURN provider for production.
+const TURN_URL = process.env.NEXT_PUBLIC_TURN_URL;
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
     { urls: "stun:stun2.l.google.com:19302" },
+    ...(TURN_URL
+      ? [{
+          urls: TURN_URL,
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        }]
+      : []),
   ],
 };
 
