@@ -49,7 +49,7 @@ export function LudoDice({
   const gapClass = isCompact ? "gap-0.5 w-6 h-6 p-0" : "grid-cols-3 grid-rows-3 gap-2 w-10 h-10 sm:w-12 sm:h-12 p-1";
 
   return (
-    <div style={{ perspective: "1000px" }} className="flex items-center justify-center shrink-0">
+    <div style={{ perspective: "1000px" }} className="relative z-10 flex items-center justify-center shrink-0 overflow-visible p-1">
       <motion.div
         onClick={() => {
           if (!isMyTurn || hasRolled || isRolling || isAnimating) return;
@@ -89,7 +89,7 @@ export function LudoDice({
           transformStyle: "preserve-3d",
         }}
         className={cn(
-          "rounded-xl bg-gradient-to-br from-white via-slate-50 to-slate-200 border-white/90 flex items-center justify-center shadow-[inset_0_2px_3px_rgba(255,255,255,0.95),inset_0_-5px_7px_rgba(15,23,42,0.12),0_8px_18px_rgba(0,0,0,0.38)] select-none transition-all ring-1 ring-black/10",
+          "relative z-10 rounded-[1.15rem] bg-gradient-to-br from-white via-slate-50 to-slate-200 border-white/90 flex items-center justify-center shadow-[inset_0_2px_3px_rgba(255,255,255,0.95),inset_0_-5px_7px_rgba(15,23,42,0.12),0_8px_18px_rgba(0,0,0,0.38)] select-none transition-all ring-1 ring-black/10",
           isMyTurn && !hasRolled && !isRolling && !isAnimating
             ? "cursor-pointer border-primary animate-bounce animate-duration-1000"
             : "text-foreground cursor-default",
@@ -97,7 +97,7 @@ export function LudoDice({
         )}
       >
         {diceVal === null ? (
-          <div className={cn("font-extrabold text-muted-foreground/60 select-none", isCompact ? "text-[10px]" : "text-xl")}>
+          <div className={cn("font-black text-muted-foreground/60 select-none drop-shadow-sm", isCompact ? "text-[10px]" : "text-2xl")}>
             ?
           </div>
         ) : (
@@ -106,12 +106,12 @@ export function LudoDice({
               <div
                 key={i}
                 className={cn(
-                  "rounded-full transition-all duration-200 bg-slate-900",
+                  "rounded-full transition-all duration-200 bg-gradient-to-br from-slate-900 to-slate-700 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_1px_1px_rgba(0,0,0,0.3)]",
                   activeDots.includes(i) ? "opacity-100 scale-100" : "opacity-0 scale-50"
                 )}
                 style={{
-                  width: isCompact ? "4px" : "8px",
-                  height: isCompact ? "4px" : "8px",
+                  width: isCompact ? "4px" : "clamp(7px, 2.2vw, 11px)",
+                  height: isCompact ? "4px" : "clamp(7px, 2.2vw, 11px)",
                 }}
               />
             ))}
