@@ -22,18 +22,18 @@ export default function HomePage() {
   const comingSoonGames = GAMES_CONFIG.filter((g) => g.comingSoon);
 
   return (
-    <div className="relative min-h-[90vh] px-4 py-8 sm:py-12 md:py-16 pt-24 sm:pt-28">
+    <div className="relative min-h-[90vh] px-3 sm:px-4 py-6 sm:py-12 md:py-16 pt-20 min-[390px]:pt-24 sm:pt-28">
       {/* ─── Ludo King Style Top Arena Welcome Banner ─── */}
       <section className="max-w-6xl mx-auto mb-10 sm:mb-14">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-r from-violet-600 via-purple-700 to-indigo-800 text-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 min-[390px]:p-6 sm:p-10 bg-gradient-to-r from-violet-600 via-purple-700 to-indigo-800 text-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6"
         >
           {/* Decorative backdrop blobs */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.1),transparent_50%)] pointer-events-none" />
-          <div className="absolute -right-24 -bottom-24 w-80 h-80 rounded-full bg-pink-500/20 blur-3xl" />
+          <div className="mobile-heavy-decoration absolute -right-24 -bottom-24 w-80 h-80 rounded-full bg-pink-500/20 blur-3xl" />
 
           <div className="space-y-4 text-center md:text-left z-10 max-w-2xl">
             <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest border border-white/5 shadow-inner">
@@ -49,11 +49,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="shrink-0 z-10">
+          <div className="shrink-0 z-10 w-full md:w-auto">
             <Link href="/games">
               <Button
                 size="lg"
-                className="h-13 px-8 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-sm gap-2 hover:scale-105 shadow-xl shadow-amber-400/20 transition-all duration-300"
+                className="h-12 sm:h-13 w-full md:w-auto px-4 sm:px-8 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-sm gap-2 hover:scale-105 shadow-xl shadow-amber-400/20 transition-all duration-300"
               >
                 <Gamepad2 className="h-4.5 w-4.5" />
                 Browse Game Library
@@ -77,9 +77,10 @@ export default function HomePage() {
           {featuredGames.map((game, idx) => (
             <motion.div
               key={game.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ delay: idx * 0.04, duration: 0.25 }}
             >
               <GameCard game={game} onClick={handleGameClick} />
             </motion.div>
