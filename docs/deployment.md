@@ -1,96 +1,44 @@
-# Deployment & Production Build Guide
+# Deployment guide
 
-This document describes how to build, containerize, and deploy **Game Galaxy Hub** to staging and production environments.
+Game Galaxy Hub runs Next.js and Socket.IO together through server/src/app.js. The root Dockerfile builds the consolidated application.
 
-## Environment Variables
+For CI, Docker image publishing, preview smoke checks, server setup, and rollback, follow [CI/CD, Docker deployment, and rollback](ci-cd.md).
 
-Configure the following variables in your hosting environment or `.env` files:
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| PORT | HTTP and Socket.IO listener port | 3000 |
+| NODE_ENV | Runtime mode | Set to production in the container |
+| NEXT_PUBLIC_SOCKET_URL | Optional public Socket.IO origin for split-origin deployments | Same-origin fallback when omitted |
 
-| Variable | Description | Default | Required in Production |
-| :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_SOCKET_URL` | Endpoint of the backend Socket.io server. | `http://localhost:3000` | **Yes** (if hosting server on a separate domain) |
-| `PORT` | Local port the Express/Socket.io server listens on. | `3000` | No |
-| `NODE_ENV` | Environment configuration flag. | `development` | Yes |
+NEXT_PUBLIC_SOCKET_URL is embedded by Next.js at build time. For split-origin hosting, pass it as a Docker build argument.
 
----
+Local production run:
 
-## Production Build Compilation
-
-To generate optimized production bundles for local validation or server setup:
-
-### 1. Build Client Frontend
-Next.js compiles static pages, compiles styles, and minifies assets:
-```bash
+~~~bash
+npm ci
 npm run build
-```
+NODE_ENV=production PORT=3000 npm run start
+~~~
 
-### 2. Verify Server App Entry
-Check that the server executes without build-time errors:
-```bash
-npm run start
-```
-By default, this runs `node server/src/app.js --production`.
+Docker:
 
----
+~~~bash
+docker compose up --build -d
+docker compose ps
+curl --fail http://localhost:3000/health
+docker compose logs -f app
+docker compose down
+~~~
 
-## Docker Containerization
+The container exposes port 3000 and reports health through /health.
 
-The backend service is pre-configured with a Dockerfile at `server/Dockerfile.server`. This ensures identical runtime environments across staging and production VPS targets.
 
-### Dockerfile Breakdown
+## WebRTC voice connectivity
 
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package.json ./
-RUN npm install --production
-COPY src/ ./src
-EXPOSE 3000
-CMD ["node", "src/app.js", "--production"]
-```
+Voice chat uses public STUN servers by default. Some mobile carriers, corporate Wi-Fi, and strict NATs require a TURN relay; configure a trusted TURN provider in the frontend deployment environment when voice status remains `failed` or `disconnected`:
 
-### Building and Running the Docker Image
+- `NEXT_PUBLIC_TURN_URL` — TURN URL, for example `turn:turn.example.com:3478` or `turns:turn.example.com:5349`
+- `NEXT_PUBLIC_TURN_USERNAME` — TURN username
+- `NEXT_PUBLIC_TURN_CREDENTIAL` — TURN credential
 
-1. **Build the container**:
-   ```bash
-   docker build -t game-galaxy-server -f server/Dockerfile.server server/
-   ```
-2. **Run the container**:
-   ```bash
-   docker run -d -p 3000:3000 --name game-galaxy-server-running game-galaxy-server
-   ```
-
----
-
-## Cloud Hosting Platforms
-
-### 1. Unified Deployment (Single Instance)
-Because the Next.js frontend is served through Next's node runtime, and we use Express/Socket.io together, you can run the application as a single node deployment:
-* **Platforms**: Render, Railway, Fly.io, or Heroku.
-* **Setup**: Connect your GitHub repository, choose a "Web Service", set the build command to `npm run build`, and the start command to `node server/src/app.js`.
-
-### 2. Split Deployment (Frontend static + Backend container)
-For higher scalability, split the static frontend assets from the stateful websocket connection server:
-* **Frontend**: Deploy Next.js to **Vercel** or **Netlify** (built as standard static / serverless pages). Set `NEXT_PUBLIC_SOCKET_URL` to point to the backend service.
-* **Backend**: Deploy the `server/` subdirectory to a containerized platform (e.g. Render Web Services, Railway, or Fly.io) exposing port `3000`.
-
-### 3. VPS Deployment (Docker Compose)
-For deployments on virtual private servers (such as DigitalOcean, AWS EC2, or Linode):
-
-Set up a `docker-compose.yml` file:
-```yaml
-version: '3.8'
-
-services:
-  app:
-    build:
-      context: .
-      dockerfile: server/Dockerfile.server
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-    restart: always
-```
-Run `docker-compose up -d` to spawn the service in detached mode behind an Nginx reverse proxy configured with SSL certificates.
+These are browser-visible values because WebRTC clients need them, so use short-lived/provider-issued credentials where possible. Do not commit credentials to the repository. After setting them, redeploy the preview environment and test voice with two separate devices/networks. A successful Socket.IO connection alone does not prove that WebRTC audio can pass through the network.

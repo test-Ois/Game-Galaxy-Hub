@@ -1,0 +1,15 @@
+services:
+  app:
+    image: ${GHCR_IMAGE:-ghcr.io/test-ois/game-galaxy-hub}:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-}
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+    restart: unless-stopped
+    init: true

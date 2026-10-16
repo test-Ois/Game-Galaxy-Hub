@@ -54,6 +54,8 @@ export function MultiplayerGame({ playerId, playerName }: MultiplayerGameProps) 
     if (!room || syncedRef.current) return;
     const myProgress = room.playerProgress?.[playerId];
     if (myProgress && myProgress.guesses.length > 0) {
+      // Restore guesses after a reconnect so the client resumes the server-owned match.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalGuesses(myProgress.guesses);
       const revealed = new Set(myProgress.guesses.map((_, i) => i));
       setRevealedRows(revealed);

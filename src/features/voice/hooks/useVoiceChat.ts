@@ -8,11 +8,21 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import type { Socket } from "socket.io-client";
 import { useSettingsStore } from "@/features/settings";
 
+// STUN works for many networks, but restrictive NATs/firewalls require TURN.
+// Configure these NEXT_PUBLIC_* values with a real TURN provider for production.
+const TURN_URL = process.env.NEXT_PUBLIC_TURN_URL;
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
     { urls: "stun:stun2.l.google.com:19302" },
+    ...(TURN_URL
+      ? [{
+          urls: TURN_URL,
+          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
+          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
+        }]
+      : []),
   ],
 };
 
@@ -215,10 +225,12 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
 
       audio.srcObject = stream;
       audio.muted = !voiceSpeakerEnabled;
-      audio.play().catch((e) => {
-        console.warn("[Voice] Auto play failed, user interaction needed:", e);
+      // Playback can be blocked until a user gesture. The speaker button retries
+      // playback below, but also try immediately when a remote track arrives.
+      void audio.play().catch((e) => {
+        console.warn("[Voice] Remote playback is waiting for a user gesture:", e);
       });
-      
+
       startRemoteAudioAnalysis(peerId, stream);
     } catch (e) {
       console.error(`[Voice] Error playing remote stream for ${peerId}:`, e);
@@ -429,11 +441,34 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
     }
   }, [initLocalStream, createPeerConnection, startLocalAudioAnalysis, flushCandidates, roomId, socket]);
 
-  // Toggle local mic
-  const toggleMic = useCallback(() => {
+  // Acquire permission directly from the user's mic-button gesture. Browsers can
+  // reject getUserMedia when it is first requested by an automatic room effect.
+  const toggleMic = useCallback(async () => {
+    // A persisted "mic on" preference is not proof that a real media track
+    // exists. If the first automatic permission request failed, the next tap
+    // must retry getUserMedia rather than merely toggling the preference off.
+    if (!localStreamRef.current) {
+      const stream = await initLocalStream();
+      if (!stream) return;
+      stream.getAudioTracks().forEach((track) => { track.enabled = true; });
+      setPermissionDenied(false);
+      useSettingsStore.getState().setVoiceMicEnabled(true);
+      startLocalAudioAnalysis(stream);
+
+      // A permission prompt may have caused the initial offer attempt to fail.
+      // Retry the designated offerer now that the local stream is ready.
+      players.forEach((peer) => {
+        if (peer.playerId !== playerId && peer.isConnected && playerId < peer.playerId) {
+          void initiateCall(peer.playerId);
+        }
+      });
+      return;
+    }
+
     const nextState = !voiceMicEnabled;
+    localStreamRef.current.getAudioTracks().forEach((track) => { track.enabled = nextState; });
     useSettingsStore.getState().setVoiceMicEnabled(nextState);
-  }, [voiceMicEnabled]);
+  }, [voiceMicEnabled, initLocalStream, startLocalAudioAnalysis, players, playerId, initiateCall]);
 
   // Sync mic toggle to tracks & broadcast state
   useEffect(() => {
@@ -452,11 +487,19 @@ export function useVoiceChat({ socket, roomId, playerId, players }: UseVoiceChat
     }
   }, [voiceMicEnabled, isSelfSpeaking, roomId, socket]);
 
-  // Sync speaker toggle to HTMLAudioElements
+  // Sync speaker toggle and retry playback after the user's speaker gesture.
   useEffect(() => {
     remoteAudiosRef.current.forEach((audio) => {
       audio.muted = !voiceSpeakerEnabled;
+      if (voiceSpeakerEnabled && audio.srcObject) {
+        void audio.play().catch((e) => {
+          console.warn("[Voice] Playback is still blocked by browser policy:", e);
+        });
+      }
     });
+    if (voiceSpeakerEnabled && audioCtxRef.current?.state === "suspended") {
+      void audioCtxRef.current.resume().catch(() => {});
+    }
   }, [voiceSpeakerEnabled]);
 
   // Establish mesh connections as players join/rejoin/disconnect

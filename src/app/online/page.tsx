@@ -15,6 +15,10 @@ import { useGameStore } from "@/store/gameStore";
 import { useSound } from "@/shared/hooks/useSound";
 import type { BoardSize, SeriesMode } from "@/shared/types/game";
 
+function isOnlineGameChoice(value: string | null): value is "tictactoe" | "ludo" | "wordbattle" {
+  return value === "ludo" || value === "tictactoe" || value === "wordbattle";
+}
+
 function OnlineLobbyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,9 +31,9 @@ function OnlineLobbyPageContent() {
   
   // Create Room state
   const gameParam = searchParams.get("game");
-  const [gameChoice, setGameChoice] = useState<"tictactoe" | "ludo" | "wordbattle">((() => {
-    return gameParam === "ludo" || gameParam === "tictactoe" || gameParam === "wordbattle" ? gameParam : "tictactoe";
-  }) as any);
+  const [gameChoice, setGameChoice] = useState<"tictactoe" | "ludo" | "wordbattle">(
+    isOnlineGameChoice(gameParam) ? gameParam : "tictactoe"
+  );
   const [ludoMaxPlayers, setLudoMaxPlayers] = useState<number>(4);
   const [boardSize, setBoardSize] = useState<BoardSize>(3);
   const [seriesMode, setSeriesMode] = useState<SeriesMode>(3);
@@ -42,8 +46,8 @@ function OnlineLobbyPageContent() {
   const [prevGameParam, setPrevGameParam] = useState(gameParam);
   if (gameParam !== prevGameParam) {
     setPrevGameParam(gameParam);
-    if (gameParam === "ludo" || gameParam === "tictactoe" || gameParam === "wordbattle") {
-      setGameChoice(gameParam as any);
+    if (isOnlineGameChoice(gameParam)) {
+      setGameChoice(gameParam);
     }
   }
 

@@ -37,7 +37,7 @@ export default function GamesPage() {
   };
 
   return (
-    <div className="relative min-h-[90vh] px-4 py-8 sm:py-12 md:py-16 pt-24 sm:pt-28">
+    <div className="relative min-h-[90vh] px-3 sm:px-4 py-6 sm:py-12 md:py-16 pt-20 min-[390px]:pt-24 sm:pt-28">
       {/* ─── Hero / Header ─── */}
       <section className="text-center max-w-4xl mx-auto w-full mb-10 sm:mb-16">
         <motion.div
@@ -80,9 +80,10 @@ export default function GamesPage() {
           {GAMES_CONFIG.map((game, idx) => (
             <motion.div
               key={game.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1, duration: 0.5 }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ delay: idx * 0.04, duration: 0.25 }}
             >
               <GameCard game={game} onClick={handleGameClick} />
             </motion.div>

@@ -5,6 +5,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +20,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -59,7 +61,8 @@ export function PWAInstallPrompt() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  // Keep install UI out of immersive game boards and mobile chat controls.
+  if (!isVisible || pathname.startsWith("/play/")) return null;
 
   return (
     <AnimatePresence>
@@ -67,7 +70,7 @@ export function PWAInstallPrompt() {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 30 }}
-        className="fixed bottom-4 left-3 right-3 sm:left-4 sm:right-4 md:left-auto md:right-4 md:max-w-sm z-50 glass-strong p-3 sm:p-4 rounded-2xl border border-primary/20 shadow-2xl flex flex-col gap-2.5 sm:gap-3 mb-[env(safe-area-inset-bottom)]"
+        className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-3 right-3 sm:left-4 sm:right-4 md:left-auto md:right-4 md:max-w-sm z-50 glass-strong p-3 sm:p-4 rounded-2xl border border-primary/20 shadow-2xl flex flex-col gap-2.5 sm:gap-3"
       >
         <div className="flex justify-between items-start">
           <div className="flex gap-2">
@@ -85,7 +88,7 @@ export function PWAInstallPrompt() {
             onClick={handleDismiss}
             variant="ghost"
             size="icon"
-            className="h-6 w-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted shrink-0"
+            className="h-10 w-10 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted shrink-0"
             aria-label="Dismiss banner"
           >
             <X className="h-3.5 w-3.5" />

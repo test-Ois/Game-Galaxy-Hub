@@ -303,7 +303,7 @@ export function MultiplayerArena() {
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [showExitModal, setShowExitModal] = useState(false);
-  const [confettiFired, setConfettiFired] = useState(false);
+  const confettiFired = useRef(false);
 
   const secretWord = room?.secretWord || "";
   const maxAttempts = 6;
@@ -333,6 +333,8 @@ export function MultiplayerArena() {
   // Sync server-confirmed guesses back to local state
   useEffect(() => {
     if (myProgress?.guesses) {
+      // This intentionally hydrates local input state from server-confirmed progress.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalGuesses(myProgress.guesses);
       setCurrentGuess("");
     }
@@ -340,8 +342,8 @@ export function MultiplayerArena() {
 
   // Confetti on win
   useEffect(() => {
-    if (isFinished && room?.winnerId === playerId && !confettiFired) {
-      setConfettiFired(true);
+    if (isFinished && room?.winnerId === playerId && !confettiFired.current) {
+      confettiFired.current = true;
       import("canvas-confetti").then((m) => {
         const confetti = m.default;
         const end = Date.now() + 2500;
@@ -351,7 +353,7 @@ export function MultiplayerArena() {
         }, 200);
       });
     }
-  }, [isFinished, room?.winnerId, playerId, confettiFired]);
+  }, [isFinished, room?.winnerId, playerId]);
 
   // Pop-state (browser back) interception
   useEffect(() => {

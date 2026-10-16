@@ -34,8 +34,22 @@ function addChatMessage(room, senderId, senderName, content, type = "chat", syst
   return msg;
 }
 
+function cleanupRoom(roomId) {
+  const room = rooms.get(roomId);
+  if (room) {
+    for (const player of room.players || []) {
+      if (playerRooms.get(player.playerId) === roomId) playerRooms.delete(player.playerId);
+      const reconnectTimer = reconnectTimers.get(player.playerId);
+      if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimers.delete(player.playerId); }
+    }
+  }
+  const turnTimer = ludoTurnTimers.get(roomId);
+  if (turnTimer) { clearTimeout(turnTimer); ludoTurnTimers.delete(roomId); }
+  rooms.delete(roomId);
+}
+
 function startSweeper() {
-  setInterval(() => {
+  const interval = setInterval(() => {
     const now = new Date();
     const maxAge = 2 * 60 * 60 * 1000; // 2 hours limit
     for (const [roomId, room] of rooms.entries()) {
@@ -44,14 +58,11 @@ function startSweeper() {
       const hasConnectedPlayers = room.players.some((p) => p.isConnected);
       if (roomAge > maxAge || !hasConnectedPlayers || room.players.length === 0) {
         console.log(`[Sweeper] Cleaning up inactive/orphaned room ${roomId}`);
-        rooms.delete(roomId);
-        if (ludoTurnTimers.has(roomId)) {
-          clearTimeout(ludoTurnTimers.get(roomId));
-          ludoTurnTimers.delete(roomId);
-        }
+        cleanupRoom(roomId);
       }
     }
   }, 10 * 60 * 1000);
+  if (typeof interval.unref === "function") interval.unref();
 }
 
 // Start the room sweeper on initialization
@@ -64,4 +75,5 @@ module.exports = {
   ludoTurnTimers,
   generateRoomId,
   addChatMessage,
+  cleanupRoom,
 };

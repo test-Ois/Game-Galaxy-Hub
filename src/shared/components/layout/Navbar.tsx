@@ -35,8 +35,8 @@ function NavbarContent() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Hide general site navigation navbar inside online gameplay rooms
-  const isRoomPage = pathname.includes("/play/online/") || pathname.includes("/play/ludo/");
+  // Keep all gameplay modes immersive: no site navigation over a live game.
+  const isRoomPage = pathname.startsWith("/play/");
   if (isRoomPage) return null;
 
   return (
@@ -50,8 +50,9 @@ function NavbarContent() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.png" alt="GGH Logo" className="h-full w-full object-cover" />
               </div>
-              <span className="text-sm sm:text-base font-black tracking-widest text-foreground uppercase select-none transition-colors group-hover:text-primary">
-                Game Galaxy Hub
+              <span className="text-sm sm:text-base font-black tracking-[0.12em] sm:tracking-widest text-foreground uppercase select-none transition-colors group-hover:text-primary">
+                <span className="hidden min-[390px]:inline">Game Galaxy Hub</span>
+                <span className="min-[390px]:hidden">GGH</span>
               </span>
             </Link>
 
@@ -93,7 +94,7 @@ function NavbarContent() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 sm:h-9 sm:w-9 rounded-full"
+                className="h-10 w-10 sm:h-9 sm:w-9 rounded-full"
                 onClick={() => setShowSettings(true)}
                 aria-label="Open Settings"
               >
