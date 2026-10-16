@@ -9,8 +9,9 @@ For CI, Docker image publishing, preview smoke checks, server setup, and rollbac
 | PORT | HTTP and Socket.IO listener port | 3000 |
 | NODE_ENV | Runtime mode | Set to production in the container |
 | NEXT_PUBLIC_SOCKET_URL | Optional public Socket.IO origin for split-origin deployments | Same-origin fallback when omitted |
+| CORS_ORIGIN | Comma-separated allow-list of trusted browser origins for Socket.IO | `https://game-galaxy-hub.vercel.app` (localhost is added in development) |
 
-NEXT_PUBLIC_SOCKET_URL is embedded by Next.js at build time. For split-origin hosting, pass it as a Docker build argument.
+NEXT_PUBLIC_SOCKET_URL is embedded by Next.js at build time. For split-origin hosting, pass it as a Docker build argument. Set `CORS_ORIGIN` on the backend to the exact frontend origin(s), comma-separated, with no trailing slash. For example: `https://game-galaxy-hub.vercel.app,https://your-preview-domain.vercel.app`. Do not use `*` in production.
 
 Local production run:
 
