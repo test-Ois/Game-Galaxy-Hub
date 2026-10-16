@@ -3,7 +3,7 @@
 // Site-wide footer: keep the global shell out of immersive gameplay rooms.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, Github, Gamepad2, Trophy, Users, LayoutDashboard, Sparkles } from "lucide-react";
+import { ArrowUpRight, GitBranch, Gamepad2, Trophy, Users, LayoutDashboard, Sparkles } from "lucide-react";
 
 const exploreLinks = [
   { href: "/games", label: "Game library", icon: Gamepad2 },
@@ -107,7 +107,7 @@ export function Footer() {
               rel="noreferrer"
               className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-lg border border-border/70 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Github className="h-4 w-4" aria-hidden="true" />
+              <GitBranch className="h-4 w-4" aria-hidden="true" />
               Project on GitHub
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
             </a>
