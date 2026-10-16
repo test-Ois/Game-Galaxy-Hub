@@ -68,6 +68,8 @@ export interface MultiplayerRoomState {
   status: "waiting" | "playing" | "finished";
   players: MultiplayerPlayer[];
   secretWord: string;
+  /** Public word length; the secret itself is withheld until the round ends. */
+  wordLength?: number;
   difficulty: WordDifficulty;
   winnerId: string | null;
   draw: boolean;
