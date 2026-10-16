@@ -1,94 +1,89 @@
 // ============================================================
-// LudoBoard Component — Premium 15x15 Grid Layout
+// LudoBoard — classic bright 15x15 Ludo board
 // ============================================================
-
 "use client";
 
 import React from "react";
 import { cn } from "@/shared/services/utils";
-import { SAFE_CELLS, TRACK_COORDS } from "../constants/coordinates";
+import { BASE_SPOTS, SAFE_CELLS, TRACK_COORDS } from "../constants/coordinates";
 
-interface LudoBoardProps {
-  children?: React.ReactNode;
-}
+interface LudoBoardProps { children?: React.ReactNode; }
 
-interface BoardCell {
-  key: string;
-  className: string;
-  isSafeCell: boolean;
-  isBaseSpot: boolean;
-}
-
-// Compute the static 15x15 board once instead of repeating coordinate
-// lookups and nested Array.from allocations on every dice/token state update.
-const BOARD_CELLS: BoardCell[] = Array.from({ length: 225 }, (_, index) => {
-  const rIdx = Math.floor(index / 15);
-  const cIdx = index % 15;
-  let cellColor = "bg-neutral-900/90";
-
-  const isSafeCell = SAFE_CELLS.some(
-    (trackIndex) =>
-      TRACK_COORDS[trackIndex].r === rIdx &&
-      TRACK_COORDS[trackIndex].c === cIdx
-  );
-
-  if (rIdx < 6 && cIdx < 6) cellColor = "bg-gradient-to-br from-rose-950/80 via-red-950/65 to-rose-900/50";
-  else if (rIdx < 6 && cIdx > 8) cellColor = "bg-gradient-to-br from-emerald-950/80 via-green-950/65 to-emerald-900/50";
-  else if (rIdx > 8 && cIdx > 8) cellColor = "bg-gradient-to-br from-amber-950/80 via-orange-950/65 to-amber-900/50";
-  else if (rIdx > 8 && cIdx < 6) cellColor = "bg-gradient-to-br from-blue-950/80 via-sky-950/65 to-blue-900/50";
-
-  if (rIdx === 7 && cIdx >= 1 && cIdx <= 5) cellColor = "bg-gradient-to-r from-red-600/60 to-red-500/95";
-  else if (cIdx === 7 && rIdx >= 1 && rIdx <= 5) cellColor = "bg-gradient-to-b from-emerald-600/60 to-emerald-500/95";
-  else if (rIdx === 7 && cIdx >= 9 && cIdx <= 13) cellColor = "bg-gradient-to-l from-amber-600/60 to-amber-500/95";
-  else if (cIdx === 7 && rIdx >= 9 && rIdx <= 13) cellColor = "bg-gradient-to-t from-blue-600/60 to-blue-500/95";
-
-  if (rIdx >= 6 && rIdx <= 8 && cIdx >= 6 && cIdx <= 8) {
-    cellColor = "bg-neutral-850/80";
+const BOARD_CELLS = Array.from({ length: 225 }, (_, index) => {
+  const r = Math.floor(index / 15);
+  const c = index % 15;
+  const isTrack = TRACK_COORDS.some((cell) => cell.r === r && cell.c === c);
+  const isHomeLane =
+    (r === 7 && c >= 1 && c <= 5) ||
+    (c === 7 && r >= 1 && r <= 5) ||
+    (r === 7 && c >= 9 && c <= 13) ||
+    (c === 7 && r >= 9 && r <= 13);
+  const inCenter = r >= 6 && r <= 8 && c >= 6 && c <= 8;
+  const inRedBase = r <= 5 && c <= 5;
+  const inGreenBase = r <= 5 && c >= 9;
+  const inYellowBase = r >= 9 && c >= 9;
+  const inBlueBase = r >= 9 && c <= 5;
+  const baseColor = inRedBase ? "red" : inGreenBase ? "green" : inYellowBase ? "yellow" : inBlueBase ? "blue" : null;
+  const isBaseSpot = Object.values(BASE_SPOTS).flat().some((cell) => cell.r === r && cell.c === c);
+  const isSafeCell = SAFE_CELLS.some((trackIndex) => TRACK_COORDS[trackIndex]?.r === r && TRACK_COORDS[trackIndex]?.c === c);
+  let cellColor = "bg-white";
+  if (baseColor === "red") cellColor = "bg-[#f11f2c]";
+  if (baseColor === "green") cellColor = "bg-[#079b50]";
+  if (baseColor === "yellow") cellColor = "bg-[#ffe51b]";
+  if (baseColor === "blue") cellColor = "bg-[#20a9ed]";
+  if (isTrack) cellColor = "bg-white";
+  if (isHomeLane) {
+    if (r === 7 && c >= 1 && c <= 5) cellColor = "bg-[#ed1c2a]";
+    else if (c === 7 && r >= 1 && r <= 5) cellColor = "bg-[#079b50]";
+    else if (r === 7 && c >= 9 && c <= 13) cellColor = "bg-[#ffe51b]";
+    else cellColor = "bg-[#20a9ed]";
   }
-
-  if (rIdx === 6 && cIdx === 1) cellColor = "bg-gradient-to-r from-red-500 to-red-600 border border-red-300/30";
-  if (rIdx === 1 && cIdx === 8) cellColor = "bg-gradient-to-b from-emerald-500 to-emerald-600 border border-emerald-300/30";
-  if (rIdx === 8 && cIdx === 13) cellColor = "bg-gradient-to-l from-amber-500 to-amber-600 border border-amber-300/30";
-  if (rIdx === 13 && cIdx === 6) cellColor = "bg-gradient-to-t from-blue-500 to-blue-600 border border-blue-300/30";
-
-  const isBaseSpot =
-    ((rIdx === 1 || rIdx === 4) &&
-      (cIdx === 1 || cIdx === 4 || cIdx === 10 || cIdx === 13)) ||
-    ((rIdx === 10 || rIdx === 13) &&
-      (cIdx === 1 || cIdx === 4 || cIdx === 10 || cIdx === 13));
-
-  return {
-    key: `cell-${rIdx}-${cIdx}`,
-    className: cellColor,
-    isSafeCell,
-    isBaseSpot,
-  };
+  if (inCenter) cellColor = "bg-white";
+  return { key: `cell-${r}-${c}`, r, c, cellColor, baseColor, isBaseSpot, isSafeCell, inCenter };
 });
+
+function CenterHub() {
+  return (
+    <div className="absolute z-[5] pointer-events-none" style={{ left: "40%", top: "40%", width: "20%", height: "20%" }}>
+      <div className="relative w-full h-full overflow-hidden border border-slate-500/70">
+        <div className="absolute inset-0" style={{ background: "#079b50", clipPath: "polygon(0 0,100% 0,50% 50%)" }} />
+        <div className="absolute inset-0" style={{ background: "#ffe51b", clipPath: "polygon(100% 0,100% 100%,50% 50%)" }} />
+        <div className="absolute inset-0" style={{ background: "#20a9ed", clipPath: "polygon(100% 100%,0 100%,50% 50%)" }} />
+        <div className="absolute inset-0" style={{ background: "#ed1c2a", clipPath: "polygon(0 100%,0 0,50% 50%)" }} />
+      </div>
+    </div>
+  );
+}
 
 export function LudoBoard({ children }: LudoBoardProps) {
   return (
-    <div className="relative aspect-square w-[min(96vw,760px)] sm:w-[min(88vw,760px)] shrink-0 border-[5px] sm:border-[9px] border-amber-700/80 rounded-[1.35rem] sm:rounded-[2rem] p-1 sm:p-1.5 bg-gradient-to-br from-amber-300 via-amber-800 to-yellow-950 shadow-[0_12px_36px_rgba(0,0,0,0.55),inset_0_2px_4px_rgba(255,255,255,0.25)] overflow-hidden">
-      <div className="grid grid-cols-15 grid-rows-15 w-full h-full gap-px bg-stone-950 rounded-[0.9rem] sm:rounded-[1.4rem] overflow-hidden shadow-inner">
-        {BOARD_CELLS.map(({ key, className, isSafeCell, isBaseSpot }) => (
+    <div className="relative aspect-square w-[min(96vw,760px)] sm:w-[min(88vw,760px)] shrink-0 border-[3px] sm:border-4 border-slate-300 rounded-sm p-0 bg-white shadow-[0_10px_32px_rgba(0,0,0,0.35)] overflow-hidden">
+      <div className="grid grid-cols-15 grid-rows-15 w-full h-full gap-0 bg-slate-400">
+        {BOARD_CELLS.map(({ key, r, c, cellColor, baseColor, isBaseSpot, isSafeCell, inCenter }) => (
           <div
             key={key}
             className={cn(
-              "relative rounded-[2px] flex items-center justify-center border border-black/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)] text-[8px]",
-              className
+              "relative flex items-center justify-center border-[0.5px] border-slate-500/70 min-w-0 min-h-0",
+              cellColor,
+              baseColor && !isBaseSpot && !inCenter ? "border-transparent" : "",
+              isBaseSpot ? "border-transparent" : ""
             )}
           >
-            {isSafeCell && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-40 select-none text-yellow-400 font-extrabold text-[clamp(6px,1.8vw,14px)]">
-                ★
-              </div>
+            {isBaseSpot && baseColor && (
+              <div className={cn(
+                "h-[78%] w-[78%] rounded-full border border-white/90 shadow-[inset_0_1px_2px_rgba(0,0,0,0.16)]",
+                baseColor === "red" ? "bg-[#ed1c2a]" :
+                baseColor === "green" ? "bg-[#079b50]" :
+                baseColor === "yellow" ? "bg-[#ffe51b]" : "bg-[#20a9ed]"
+              )} />
             )}
-            {isBaseSpot && (
-              <div className="h-[55%] w-[55%] rounded-full bg-black/35 border border-white/10 shadow-inner flex items-center justify-center" />
+            {isSafeCell && !inCenter && (
+              <span className="relative z-[2] text-slate-500 leading-none text-[clamp(5px,1.6vw,14px)]">☆</span>
             )}
           </div>
         ))}
       </div>
-
+      <CenterHub />
       {children}
     </div>
   );
