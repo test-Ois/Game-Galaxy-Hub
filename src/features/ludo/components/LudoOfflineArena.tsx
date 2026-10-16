@@ -341,6 +341,10 @@ export function LudoOfflineArena() {
               Same-device pass and play Ludo. Pick the player count to start.
             </p>
 
+            <button onClick={startAiGame} className="w-full mt-6 rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/20 to-amber-500/10 p-4 text-left shadow-lg transition hover:border-primary/70">
+              <span className="flex items-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/20"><Trophy className="h-5 w-5 text-primary" /></span><span className="flex-1"><span className="block text-sm font-extrabold">Play with AI</span><span className="mt-1 block text-xs text-muted-foreground">You vs Computer · Single player</span></span><Play className="h-4 w-4 fill-current text-primary" /></span>
+            </button>
+
             <div className="space-y-3 mt-8">
               {([2, 3, 4] as const).map((num) => (
                 <button
