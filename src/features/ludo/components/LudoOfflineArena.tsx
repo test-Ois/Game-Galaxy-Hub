@@ -358,11 +358,11 @@ export function LudoOfflineArena() {
             </LudoBoard>
 
             {/* Control Panel */}
-            <div className="w-full max-w-[min(96vw,760px)] flex flex-col gap-3 order-2">
-              <div className="glass rounded-2xl sm:rounded-3xl p-3 sm:p-5 border border-white/10 flex flex-col gap-3 sm:gap-4 shadow-xl">
+            <div className="w-full max-w-[min(96vw,760px)] flex flex-col gap-2 order-2">
+              <div className="glass rounded-2xl p-2.5 sm:p-3 border border-white/10 flex flex-col gap-2 shadow-xl">
                 
                 {/* Header Actions */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -372,7 +372,7 @@ export function LudoOfflineArena() {
                         setIsLobbyMode(true);
                       }
                     }}
-                    className="h-8.5 rounded-lg text-xs hover:bg-destructive/10 hover:text-destructive text-muted-foreground gap-1.5"
+                    className="h-7 rounded-lg text-[11px] hover:bg-destructive/10 hover:text-destructive text-muted-foreground gap-1.5"
                   >
                     <LogOut className="h-4 w-4" />
                     Quit
@@ -387,7 +387,7 @@ export function LudoOfflineArena() {
                         startOfflineGame(playerCount || 4);
                       }
                     }}
-                    className="h-8.5 rounded-lg text-xs hover:bg-primary/10 text-muted-foreground gap-1.5"
+                    className="h-7 rounded-lg text-[11px] hover:bg-primary/10 text-muted-foreground gap-1.5"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Restart
@@ -395,8 +395,8 @@ export function LudoOfflineArena() {
                 </div>
 
                 {/* Turn Spotlight Indicator */}
-                <div className="flex flex-col gap-1 p-3 rounded-2xl bg-white/5 border border-white/5">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Active Turn</span>
+                <div className="flex flex-row items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5">
+                  <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Active Turn</span>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                       <div
@@ -418,12 +418,12 @@ export function LudoOfflineArena() {
                 </div>
 
                 {/* Status Message Panel */}
-                <div className="p-3.5 rounded-2xl bg-neutral-900/60 border border-white/5 text-xs text-center font-bold text-muted-foreground min-h-[50px] flex items-center justify-center leading-relaxed">
+                <div className="px-3 py-2 rounded-xl bg-neutral-900/60 border border-white/5 text-[11px] text-center font-bold text-muted-foreground min-h-0 flex items-center justify-center leading-snug">
                   {gameMessage || "Roll the dice to make your move!"}
                 </div>
 
                 {/* Shaking Dice Roller */}
-                <div className="flex items-center justify-center gap-4 py-4 bg-neutral-900/40 rounded-2xl border border-white/5 relative overflow-hidden">
+                <div className="flex items-center justify-center gap-3 py-2 bg-neutral-900/40 rounded-xl border border-white/5 relative overflow-hidden">
                   <LudoDice
                     activeColor={activeColor}
                     diceRoll={diceRoll}
