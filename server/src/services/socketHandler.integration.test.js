@@ -92,7 +92,7 @@ test("WebRTC voice signaling and mic state relay in both directions", async () =
   try {
     [host, guest] = await Promise.all([connectClient(url), connectClient(url)]);
     const createdPromise = waitForEvent(host, "roomCreated");
-    host.emit("createRoom", { name: "Voice Host", gameType: "tictactoe", maxPlayers: 2, playerId: "ci-voice-host" });
+    host.emit("createRoom", { name: "Voice Host", gameType: "tictactoe", maxPlayers: 2, boardSize: 3, seriesMode: 1, playerId: "ci-voice-host" });
     const created = await createdPromise;
     roomId = created.roomId;
 
