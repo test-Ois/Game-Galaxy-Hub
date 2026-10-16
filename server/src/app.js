@@ -33,9 +33,27 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
+  // Restrict browser Socket.IO access to explicitly trusted app origins.
+  // Configure CORS_ORIGIN as a comma-separated list for custom/split-origin deployments.
+  const configuredOrigins = (process.env.CORS_ORIGIN || "https://game-galaxy-hub.vercel.app")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  if (dev) {
+    configuredOrigins.push("http://localhost:3000", "http://127.0.0.1:3000");
+  }
+  const allowedOrigins = new Set(configuredOrigins);
+
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin(origin, callback) {
+        // Non-browser clients may not send Origin; browser origins must be allow-listed.
+        if (!origin || allowedOrigins.has(origin.replace(/\/$/, ""))) {
+          callback(null, true);
+          return;
+        }
+        callback(new Error("Origin not allowed by Socket.IO CORS policy"));
+      },
       methods: ["GET", "POST"],
     },
   });
